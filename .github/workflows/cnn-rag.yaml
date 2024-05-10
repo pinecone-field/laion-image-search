@@ -26,7 +26,6 @@ jobs:
         run: |
           cd cnn-rag
           poetry install
-          poetry shell
       - name: Run data pipeline - CNN scrape
         run: |
           cd cnn-rag 
