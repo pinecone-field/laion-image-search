@@ -1,0 +1,28 @@
+name: CNN - RAG
+run-name: Question-Answer - ${{ github.actor }} - ${{ github.event_name }} - ${{ github.sha }}
+on: 
+  schedule:
+    - cron: '0 0 * * *'
+
+env:
+  PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  PINECONE_INDEX_NAME: canopy--pinecone-multitenant-rag-demo
+  PINECONE_NAMESPACE: wbd
+
+jobs:
+  Build-RunDataPipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install poetry
+        run: pip install poetry
+      - name: Install dependencies
+        run: poetry cnn-rag/install
+      - name: Create poetry shell
+        run: poetry shell
+      - name: Run data pipeline - CNN scrape
+        run: python cnn-rag/data_pipeline.py scrape_cnn
+      - name: Run data upsert
+        run: python cnn-rag/data_pipeline.py upsert
