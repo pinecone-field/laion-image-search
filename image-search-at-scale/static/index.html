@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pinecone Image Similarity Search</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        img {
+            max-width: 200px;
+            max-height: 200px;
+        }
+        #data td {
+            vertical-align: middle;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col d-flex">
+                <a href="https://app.pinecone.io/organizations/-NF9xx-MFLRfp0AAuCon/projects/00e0f161-f169-4ba8-84d2-bbab9b875c27/indexes/laion-400m/browser">
+                    <img src="pinecone-logo-black.png" alt="Pinecone Logo">
+                </a>
+            </div>
+            <div class="col d-flex align-items-center justify-content-end pt-3">
+                <h3>LAION 400M - Similarity Search Results</h3>
+            </div>
+        </div>
+        <table class="table table-striped" id="data">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Caption</th>
+                <th scope="col">Original Image</th>
+                <th scope="col">Search Result Image</th>
+                <th scope="col">Similarity Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be added here by JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+        fetch('http://localhost:8000/images')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('data').getElementsByTagName('tbody')[0];
+                data.images.forEach(image => {
+                    const row = tableBody.insertRow();
+                    row.insertCell(0).innerText = image.caption;
+                    
+                    const imgCellOriginal = row.insertCell(1);
+                    const imgOriginal = document.createElement('img');
+                    imgOriginal.src = "./image.jpeg?" + new Date().getTime();
+                    imgCellOriginal.appendChild(imgOriginal);
+
+                    const imgCell = row.insertCell(2);
+                    const img = document.createElement('img');
+                    img.src = image.url;
+                    img.alt = "image removed from web";
+                    imgCell.appendChild(img);
+                    row.insertCell(3).innerText = image.score;
+                });
+
+                 // Create a new div element for the query_response_time
+                const responseTimeDiv = document.createElement('div');
+                responseTimeDiv.innerText = "Query Response Time: " + data.query_response_time + " ms";
+
+                // Align the text to the right
+                responseTimeDiv.style.textAlign = "right";
+
+                // Get the table element
+                const table = document.getElementById('data');
+
+                // Insert the responseTimeDiv before the table in the DOM
+                table.parentNode.insertBefore(responseTimeDiv, table);
+            })
+            .catch(error => console.error('Error:', error));
+    </script>
+</body>
+</html>

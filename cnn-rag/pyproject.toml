@@ -1,0 +1,21 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "cnn-rag"
+version = "0.1.0"
+description = "Backend data pipeline for the CNN RAG project"
+authors = ["James Williams"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.9,<3.13"
+beautifulsoup4 = "4.12.3"
+pinecone-client = "3.2.2"
+python-dotenv = "1.0.1"
+requests = "2.31.0"
+canopy-sdk = "0.9.0"
+tiktoken = "0.3.3"
+
+[tool.poetry.dev-dependencies]
