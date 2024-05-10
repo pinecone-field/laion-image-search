@@ -14,11 +14,19 @@ poetry install
 poetry shell
 ```
 
-## Step 2 - Run FastAPI
+### Step 2 - Set environment variables
+Create a file named ```.env``` that has the following variables:
+
+```
+PINECONE_INDEX_NAME=laion-400m
+PINECONE_API_KEY=[YOUR_PINECONE_API_KEY]
+```
+
+## Step 3 - Run FastAPI
 Start demo API by running the following command.
 
 ```
-poetry run uvicorn main:app --reload
+uvicorn main:app --reload
 ```
 
 ## Demo Script
