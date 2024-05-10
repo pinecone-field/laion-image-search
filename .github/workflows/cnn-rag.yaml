@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          persist-credentials: false # This is needed to make the `GITHUB_TOKEN` work
       - name: Install poetry
         run: pip install poetry
       - name: Install dependencies
@@ -34,3 +36,12 @@ jobs:
         run: |
           cd cnn-rag 
           poetry run python data_pipeline.py upsert
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add -A
+          git commit -m "Committing updated JSONL files"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

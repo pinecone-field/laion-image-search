@@ -4,6 +4,9 @@ to showcase RAG on top of CNN news articles. This project contains a data pipeli
 upserting CNN articles into the "wbd" namespace. You do not need to run this data pipeline
 to do a live demo. 
 
+**IMPORTANT**: The CNN news scrape and upsert data pipeline runs once a day. The pinecone
+index should have up to date CNN news data.
+
 ## Data Pipeline
 The article counts, embedding counts and last scrape date may not be accurate because the pipeline
 is designed to be re-run. This image provides detail on article/embedding counts as of 5/2/2024.
