@@ -8,7 +8,10 @@ This demo re-uses Chris Amata's excellent image search demo.
 Setup virtual environment and install the required python packages. 
 
 ```
+cd ./image-search-at-scale
+pip install poetry
 poetry install
+poetry shell
 ```
 
 ## Step 2 - Run FastAPI

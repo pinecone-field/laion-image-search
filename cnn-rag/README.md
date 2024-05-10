@@ -32,10 +32,14 @@ Run this quickstart if you would like to web scrape CNN then upload the embeddin
 
 ### Step 1 - Install dependencies
 
-Setup virtual environment and install the required python packages. 
+Setup virtual environment and install the required python packages. If you do not have poetry, you will need to install
+with this command:
 
 ```
+cd ./cnn-rag
+pip install poetry
 poetry install
+poetry shell
 ```
 
 ### Step 2 - Set environment variables
@@ -56,14 +60,14 @@ You can scrape cnn.com by running the command below. The data pipeline will use 
 1. Create a JSONL file for each section that one entry for each article - populate required canopy fields ```id``` and ```text``` and ```source``` and optional fields ```scrape_data``` and ```section``` metadata.
 
 ```
-python data_pipeline.py scrape_cnn
+python ./data_pipeline.py scrape_cnn
 ```
 
 ### Step 3 - Run Data Pipeline - upsert
 Canopy upsert of all JSONL files in ```./data/canopy```
 
 ```
-python data_pipeline.py upsert
+python ./data_pipeline.py upsert
 ```
 
 **IMPORTANT** - The only commands you should run are ```scrape_cnn``` and ```upsert```. This will allow us to 
