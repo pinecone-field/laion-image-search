@@ -23,10 +23,15 @@ jobs:
       - name: Install poetry
         run: pip install poetry
       - name: Install dependencies
-        run: poetry cnn-rag/install
-      - name: Create poetry shell
-        run: poetry shell
+        run: |
+          cd cnn-rag
+          poetry install
+          poetry shell
       - name: Run data pipeline - CNN scrape
-        run: python cnn-rag/data_pipeline.py scrape_cnn
+        run: |
+          cd cnn-rag 
+          python data_pipeline.py scrape_cnn
       - name: Run data upsert
-        run: python cnn-rag/data_pipeline.py upsert
+        run: |
+          cd cnn-rag 
+          python data_pipeline.py upsert
