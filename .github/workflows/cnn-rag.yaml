@@ -29,8 +29,8 @@ jobs:
       - name: Run data pipeline - CNN scrape
         run: |
           cd cnn-rag 
-          python data_pipeline.py scrape_cnn
+          poetry run python data_pipeline.py scrape_cnn
       - name: Run data upsert
         run: |
           cd cnn-rag 
-          python data_pipeline.py upsert
+          poetry run python data_pipeline.py upsert
