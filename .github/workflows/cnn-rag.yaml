@@ -5,6 +5,8 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch:
 
+permissions: write-all
+
 env:
   PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
