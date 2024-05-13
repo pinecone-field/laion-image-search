@@ -39,6 +39,7 @@ jobs:
           git config --global user.email 'williamsj@pinecone.io'
           git add -A
           git commit -m "Committing updated JSONL files"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/cfossguy/pinecone-field/rag-and-imagesearch.git
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
