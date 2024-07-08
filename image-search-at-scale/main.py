@@ -9,6 +9,8 @@ from pinecone import Pinecone
 import time
 from fastapi.staticfiles import StaticFiles
 
+import requests
+
 app = FastAPI()
 
 load_dotenv()
@@ -57,25 +59,58 @@ def get_embedding():
     return CACHED_EMBEDDING
 
 def pinecone_query(embedding):
-    start_time = time.time()
+    
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
-    images = []
-    result = index.query(
-        vector=embedding,
-        top_k=10,
-        include_metadata=True
-    )
-    
-    for m in result.matches:
-        images.append({
-                "caption": m.metadata["caption"],
-                "url": m.metadata["url"],
-                "score": m.score
-            })
-    query_response_time = round((time.time() - start_time) * 1000, 0)
-    print(f"Pinecone query execution time: {query_response_time} ms")
+
+    dead_links = True
+    while dead_links:
+        start_time = time.time()
+        dead_link_count = 0
+        images = []
+        metadata_filter = {"url": {"$ne": "404"}} 
+
+        result = index.query(
+            vector=embedding,
+            top_k=10,
+            include_metadata=True,
+            filter=metadata_filter #Only return images form query where url != 404
+        )
+
+        for match in result.matches:
+            url = match["metadata"]["url"]
+            url_code = get_url_status(url)
+            if url_code != 200:
+                print(f'\nRemoving dead link: {url}')
+                dead_link_count += 1
+                new_metadata = {"url": str(url_code)}
+                index.update(id=match["id"], set_metadata = new_metadata)
+
+        if dead_link_count == 0:
+            dead_links = False
+
+        query_response_time = round((time.time() - start_time) * 1000, 0)
+        print(f"Pinecone query execution time: {query_response_time} ms")
+
+        for m in result.matches:
+            images.append({
+                    "caption": m.metadata["caption"],
+                    "url": m.metadata["url"],
+                    "score": m.score
+                })
+
     return images, query_response_time
+
+def get_url_status(url):
+    try:
+        code = requests.get(url, stream=True).status_code
+        if code in [400, 401, 403, 404, 410, 500, 502, 503, 504]: #Error codes preventing image loading
+            return 404
+        else:
+            return code
+    except requests.exceptions.RequestException as e:
+        print(f"\nCannot Reach:\n{url}.\nError: {e}\n")
+        return 404
 
 @app.get("/images")
 async def image_similarity_search():
