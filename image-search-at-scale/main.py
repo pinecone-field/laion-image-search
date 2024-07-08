@@ -9,6 +9,8 @@ from pinecone import Pinecone
 import time
 from fastapi.staticfiles import StaticFiles
 
+import requests
+
 app = FastAPI()
 
 load_dotenv()
@@ -61,11 +63,23 @@ def pinecone_query(embedding):
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
     images = []
+    metadata_filter = {"url": {"$ne": "404"}}
     result = index.query(
         vector=embedding,
         top_k=10,
-        include_metadata=True
+        include_metadata=True,
+        filter=metadata_filter
     )
+
+    matches = result["matches"]
+    new_metadata = {"url": "404"}
+    for match in matches:
+        url_check = requests.get(match["metadata"]["url"], stream=True)
+        if url_check.status_code == 404:
+            print(match["metadata"]["url"], url_check)
+            vec_id = match["id"]
+            index.update(id=vec_id, set_metadata = new_metadata)
+            
     
     for m in result.matches:
         images.append({
@@ -73,6 +87,7 @@ def pinecone_query(embedding):
                 "url": m.metadata["url"],
                 "score": m.score
             })
+
     query_response_time = round((time.time() - start_time) * 1000, 0)
     print(f"Pinecone query execution time: {query_response_time} ms")
     return images, query_response_time
