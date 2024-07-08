@@ -88,7 +88,10 @@ def pinecone_query(embedding):
 
         if dead_link_count == 0:
             dead_links = False
-        
+
+        query_response_time = round((time.time() - start_time) * 1000, 0)
+        print(f"Pinecone query execution time: {query_response_time} ms")
+
         for m in result.matches:
             images.append({
                     "caption": m.metadata["caption"],
@@ -96,8 +99,6 @@ def pinecone_query(embedding):
                     "score": m.score
                 })
 
-        query_response_time = round((time.time() - start_time) * 1000, 0)
-        print(f"Pinecone query execution time: {query_response_time} ms")
     return images, query_response_time
 
 def get_url_status(url):
