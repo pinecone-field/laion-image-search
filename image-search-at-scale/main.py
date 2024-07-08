@@ -37,6 +37,8 @@ PROCESSOR = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
 CACHED_IMAGE_HASH = None
 CACHED_EMBEDDING = None
+CACHED_TEXT = None
+CACHED_TEXT_EMBEDDING = None
 
 
 def get_image_hash(image_path):
@@ -48,12 +50,8 @@ def get_image_embedding():
     global CACHED_IMAGE_HASH
     global CACHED_EMBEDDING
     start_time = time.time()
-
-    # Get the hash of the new image
     new_image_hash = get_image_hash(IMAGE_PATH)
 
-    # If the hash of the new image is the same as the hash of the cached image,
-    # the image has not changed
     if new_image_hash == CACHED_IMAGE_HASH:
         print("Image has not changed. Using cached image embedding.")
         return CACHED_EMBEDDING
@@ -61,19 +59,36 @@ def get_image_embedding():
     CACHED_IMAGE_HASH = new_image_hash
     print("Computing the image embedding")
     image = Image.open(IMAGE_PATH)
-
-    # Preprocess the image and return PyTorch tensor
     inputs = PROCESSOR(images=image, return_tensors="pt")
-    # Generate the image embedding
+
     with torch.no_grad():
         image_embeddings = MODEL.get_image_features(**inputs)
 
-    # Convert the image embedding from a numpy array to a list
     CACHED_EMBEDDING = image_embeddings.cpu().numpy().tolist()
 
     end_time = time.time()
     print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
     return CACHED_EMBEDDING
+
+
+def get_text_embedding(text):
+    global CACHED_TEXT
+    global CACHED_TEXT_EMBEDDING
+    start_time = time.time()
+
+    if text == CACHED_TEXT:
+        print("Text has not changed. Using cached text embedding")
+        return CACHED_TEXT_EMBEDDING
+    CACHED_TEXT = text
+    inputs = PROCESSOR(text=text, return_tensors="pt")
+
+    with torch.no_grad():
+        text_embedding = MODEL.get_text_features(**inputs)
+
+    CACHED_TEXT_EMBEDDING = text_embedding.cpu().numpy().tolist()
+    end_time = time.time()
+    print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
+    return CACHED_TEXT_EMBEDDING
 
 
 def pinecone_query(embedding, index):
