@@ -8,10 +8,23 @@ import os
 from pinecone import Pinecone
 import time
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
 import requests
 
 app = FastAPI()
+
+origins = ["http://localhost:3000",
+           "localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
@@ -177,6 +190,6 @@ async def image_similarity_search():
     image_embedding = get_image_embedding()
     images, query_response_time = pinecone_query(image_embedding)
 
-    return {"images": images, "query_response_time": query_response_time}
+    return [image for image in images]
 
 app.mount("/", StaticFiles(directory="static"), name="static")

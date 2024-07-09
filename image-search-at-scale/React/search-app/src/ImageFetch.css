@@ -1,0 +1,48 @@
+.image-grid-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-gap: 20px;
+  }
+  
+  .image-item {
+    position: relative;
+  }
+  
+  .image {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 5px;
+  }
+  
+  .image-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px;
+  }
+  
+  .image-name {
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .similarity-score {
+    margin: 5px 0 0;
+  }
+  
+  .image-name,
+  .similarity-score {
+    font-size: 14px;
+  }
+  
+  
