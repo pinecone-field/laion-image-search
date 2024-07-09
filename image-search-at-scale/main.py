@@ -111,6 +111,8 @@ def pinecone_query(embedding):
     
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
+    f = open("dead_links.txt", "a") #contains vector id and url of deleted vectors, separated by a comma
+
 
     dead_links = True
     while dead_links:
@@ -128,10 +130,12 @@ def pinecone_query(embedding):
 
         for match in result.matches:
             url = match["metadata"]["url"]
+            vec_id = match["id"]
             url_code = get_url_status(url)
             if url_code != 200:
                 print(f'\nRemoving dead link: {url}')
                 dead_link_count += 1
+                f.write(vec_id + "," + url + "\n")
                 new_metadata = {"url": str(url_code)}
                 index.update(id=match["id"], set_metadata = new_metadata)
 
@@ -147,7 +151,7 @@ def pinecone_query(embedding):
                     "url": m.metadata["url"],
                     "score": m.score
                 })
-
+    f.close()
     return images, query_response_time
 
 def get_url_status(url):
@@ -158,8 +162,15 @@ def get_url_status(url):
         else:
             return code
     except requests.exceptions.RequestException as e:
-        print(f"\nCannot Reach:\n{url}.\nError: {e}\n")
+        print(f"Cannot Reach:\n{url}.\nError: {e}\n")
         return 404
+    
+def get_removed_vectors():
+    removed_vectors = []
+    f = open("dead_links.txt", 'r')
+    for line in f:
+        removed_vectors.append([line[:line.find(',')], line[line.find(',')+1:len(line)-1]])
+    return removed_vectors
 
 @app.get("/images")
 async def image_similarity_search():
