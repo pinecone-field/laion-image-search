@@ -106,7 +106,9 @@ def scrape_cnn():
 
 def upsert():
     command = f"echo y | canopy upsert ./data/canopy --index-name {PINECONE_INDEX_NAME} -n {PINECONE_NAMESPACE}"
-    result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
+    result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise Exception(result.stderr)
     print("Upserting data")
     print("Output:", result.stdout)
     print("Errors:", result.stderr)
