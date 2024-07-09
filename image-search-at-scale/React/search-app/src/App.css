@@ -1,38 +1,132 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #1c314f; /* Dark blue background */
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.App {
+  text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.App-header {
+  margin-bottom: 20px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.pinecone-logo {
+  width: 100px;
+  height: auto;
+}
+
+.header-title {
+  font-size: 24px;
+  margin-top: 10px;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 5px 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.slider-label {
+  margin: 0 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #1c314f;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 20px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.slider-label.active {
+  background-color: #1c314f;
+  color: white;
+}
+
+.slider-input {
+  display: none;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  margin-right: 20px; /* Add margin to push the photo to the right */
+}
+
+.search-input {
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+  width: 200px;
+}
+
+.search-button {
+  padding: 8px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: #45a049;
+}
+
+.drag-drop-box {
+  padding: 20px;
+  border: 2px dashed #ccc;
+  border-radius: 4px;
+  background-color: white;
+  color: black;
+  text-align: center;
+  width: 200px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px; /* Add margin to push the photo to the right */
+}
+
+.original-photo {
+  text-align: center; /* Center align the original photo */
+}
+
+.original-photo-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.original-photo-image {
+  width: 100%;
+  height: auto;
+  max-width: 300px;
+  display: inline-block; /* Display the image as inline-block */
+  margin-left: 20px; /* Adjust margin to push photo slightly right */
 }
