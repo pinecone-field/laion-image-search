@@ -11,7 +11,7 @@ import time
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 import requests
 import shutil
@@ -51,6 +51,7 @@ def get_image_hash(image_path):
     
 class SearchText(BaseModel):
     searchText: str
+    #searchMode: Optional[str] = "text"
 
 class SearchResult(BaseModel):
     caption: str
@@ -207,9 +208,9 @@ def get_images():
     return [image for image in images]
 
 def get_text_images(text):
-    #text_embedding = get_text_embedding(text)
-    embedding = get_image_embedding()
-    images, query_response_time = pinecone_query(embedding)
+    text_embedding = get_text_embedding(text)
+    #embedding = get_image_embedding()
+    images, query_response_time = pinecone_query(text_embedding)
     return [image for image in images]
 
 @app.get("/images")
@@ -229,6 +230,13 @@ async def upload_file(file:UploadFile = File(...)):
 @app.post("/images")
 async def save_search(search_text: SearchText):
     return get_text_images(search_text.searchText)
+
+# @app.post("/images"
+# async def return_results(search_mode: SearchMode)
+#     If search_mode == "text"
+#         return get_text_images(text)
+#     else
+#         return get_image_embedding()
 
 
 app.mount("/", StaticFiles(directory="static"), name="static")
