@@ -37,9 +37,7 @@ function App() {
         </div>
       </header>
         <div className="search-container">
-            <div className="search-bar">
-            {/*Text search to be added here */} 
-            </div>
+            <Search />
         </div>
       <Dropzone onUploadSuccess={handleUploadSuccess} />
       <ImageFetch uploadedImages={uploadedImages}/>

@@ -8,12 +8,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
-
+from pydantic import BaseModel
 import requests
 import torch
+from typing import List
 
 from dotenv import load_dotenv
 from pinecone import Pinecone
+
 
 app = FastAPI()
 
@@ -43,7 +45,14 @@ def get_image_hash(image_path):
     with open(image_path, "rb") as f:
         return hashlib.md5(f.read()).hexdigest()
 
+class SearchText(BaseModel):
+    searchText: str
 
+class SearchResult(BaseModel):
+    caption: str
+    score: float
+    url: str
+    
 def get_image_embedding():
     global CACHED_IMAGE_HASH
     global CACHED_EMBEDDING
@@ -76,14 +85,13 @@ def get_image_embedding():
     print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
     return CACHED_EMBEDDING
 
-def get_text_embedding():
+def get_text_embedding(text):
     global CACHED_TEXT
     global CACHED_TEXT_EMBEDDING
     start_time = time.time()
-    f = open(TEXT_PATH, 'r')
-    text = f.read()
-    f.close()
-
+    #Commenting out as implementation has changed
+    #f = open(TEXT_PATH, 'w')
+    #text = f.read()
     #If the text is the same then the embedding is the same
     if text == CACHED_TEXT: 
         print("Text has not changed. Using cached text embedding")
@@ -98,7 +106,7 @@ def get_text_embedding():
     #Convert text embedding from a numpy array to a list
     CACHED_TEXT_EMBEDDING = text_embedding.cpu().numpy().tolist()
     end_time = time.time()
-    print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")     
+    print(f"Get text embedding execution time: {(end_time - start_time) * 1000} ms")     
     return CACHED_TEXT_EMBEDDING
 
 def pinecone_query(embedding): 
@@ -139,6 +147,10 @@ def pinecone_query(embedding):
         )
     return images
 
+def get_text_images(text):
+    text_embedding = get_text_embedding(text)
+    images = pinecone_query(text_embedding)
+    return list(images)
 
 def validate_url(url):
     try:
@@ -170,3 +182,8 @@ async def upload_file(file: UploadFile = File(...)):
         return {"message": "Upload Successful!"}
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.post("/images")
+async def save_search(search_text: SearchText):
+    return get_text_images(search_text.searchText)
