@@ -4,14 +4,27 @@ import api from './api'
 import ImageFetch from './ImageFetch';
 import PineconeLogo from './assets/pinecone-logo-black.png'
 import OriginalImage from './assets/image.jpeg'
-
+import Dropzone from './components/Dropzone';
 
 function App() {
   const [searchMode, setSearchMode] = useState('text'); // State to toggle between text and image search
+  const [files, setFiles] = useState([]);
 
   const handleModeChange = (e) => {
     setSearchMode(e.target.value);
   };
+
+  const handleDrop = (acceptedFiles) => {
+    setFiles(acceptedFiles.map((file) => Object.assign(file, {
+      preview: URL.createObjectURL(file)
+    })));
+  }
+
+  useEffect(() => {
+    return () => {
+      files.forEach((file) => URL.revokeObjectURL(file.preview))
+    };
+  }, [files]);
 
   return (
     <div className="App">
@@ -49,13 +62,10 @@ function App() {
               <button className="search-button">Search</button>
             </div>
           ) : (
-            <div className="drag-drop-box">
-              <p>Drag and drop an image here</p>
-              {/* Implement drag and drop functionality here */}
-            </div>
+              <Dropzone onDrop={handleDrop} />
           )}
           <div className="original-photo">
-            <h2 className="original-photo-title">Original Photo</h2>
+            <h2 className="original-photo-title">Photo to Search</h2>
             <img src={OriginalImage} alt="Original Photo" className="original-photo-image" />
           </div>
         </div>
