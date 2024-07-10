@@ -1,17 +1,19 @@
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import JSONResponse
+from transformers import CLIPProcessor, CLIPModel
+from PIL import Image
 import hashlib
 import os
 import time
 
-
 import requests
+import shutil
 import torch
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from PIL import Image
 from pinecone import Pinecone
-from transformers import CLIPProcessor, CLIPModel
 
 app = FastAPI()
 
@@ -126,4 +128,14 @@ def validate_url(url):
 async def image_similarity_search():
     image_embedding = get_image_embedding()
     images = pinecone_query(image_embedding)
-    return list(images)
+
+    return [image for image in images]
+
+@app.post("/upload")
+async def upload_file(file:UploadFile = File(...)):
+    try:
+        with open(IMAGE_PATH, "wb+") as file_object:
+            shutil.copyfileobj(file.file, file_object)
+        return {"message": "Upload Successful!"}
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
