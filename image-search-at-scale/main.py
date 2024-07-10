@@ -207,8 +207,9 @@ def get_images():
     return [image for image in images]
 
 def get_text_images(text):
-    text_embedding = get_text_embedding(text)
-    images, query_response_time = pinecone_query(text_embedding)
+    #text_embedding = get_text_embedding(text)
+    embedding = get_image_embedding()
+    images, query_response_time = pinecone_query(embedding)
     return [image for image in images]
 
 @app.get("/images")

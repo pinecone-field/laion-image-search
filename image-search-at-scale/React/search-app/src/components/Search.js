@@ -1,8 +1,10 @@
 // src/components/SearchComponent.js
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { ImageContext } from './ImageContext';
 
 const SearchComponent = () => {
   const [searchText, setSearchText] = useState('');
+  const { setImages } = useContext(ImageContext);
   const [searchResults, setSearchResults] = useState([]);
 
   const handleSearchSubmit = async () => {
@@ -16,7 +18,7 @@ const SearchComponent = () => {
       });
       if (response.ok) {
         const results = await response.json();
-        setSearchResults(results);
+        setImages(results);
       } else {
         alert('Failed to fetch search results.');
       }
