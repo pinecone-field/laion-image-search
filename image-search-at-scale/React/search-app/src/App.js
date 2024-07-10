@@ -32,27 +32,6 @@ function App() {
     setSearchText(e.target.value);
   };
 
-  const handleSearchSubmit = async () => {
-    try {
-      const response = await fetch('http://localhost:8000/images', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ searchText }),
-      });
-      if (response.ok) {
-        const results = await response.json();
-        setSearchResults(results);
-      } else {
-        alert('Failed to fetch search results.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred.');  // add useEffect?????
-    }
-  };
-
   return (
     <div className="App">
       <header className="App-header">
@@ -86,9 +65,6 @@ function App() {
           {searchMode === 'text' ? (
             <div className="search-bar">
               <Search/>
-              <button className="search-button" onClick={handleSearchSubmit}>
-                Search
-              </button>
             </div>
           ) : (
               <Dropzone onDrop={handleDrop} />
