@@ -1,0 +1,49 @@
+// src/components/SearchComponent.js
+import React, { useState } from 'react';
+
+const SearchComponent = () => {
+  const [searchText, setSearchText] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+
+  const handleSearchSubmit = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/images', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ searchText }),
+      });
+      if (response.ok) {
+        const results = await response.json();
+        setSearchResults(results);
+      } else {
+        alert('Failed to fetch search results.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred.');
+    }
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleSearchSubmit();
+    }
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+        onKeyPress={handleKeyPress}
+      />
+      <button onClick={handleSearchSubmit}>Search</button>
+      {/* Render searchResults here */}
+    </div>
+  );
+};
+
+export default SearchComponent;

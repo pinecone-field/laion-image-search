@@ -3,7 +3,8 @@ import './App.css'
 import ImageFetch from './ImageFetch';
 import PineconeLogo from './assets/pinecone-logo-black.png'
 import OriginalImage from './assets/image.jpeg'
-import Dropzone from './Dropzone';
+import Dropzone from './components/Dropzone';
+import Search from './components/Search';
 
 function App() {
 
@@ -84,13 +85,7 @@ function App() {
         <div className="search-container">
           {searchMode === 'text' ? (
             <div className="search-bar">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="search-input"
-                value={searchText}
-                onChange={handleSearchChange}
-              />
+              <Search/>
               <button className="search-button" onClick={handleSearchSubmit}>
                 Search
               </button>

@@ -110,7 +110,7 @@ def get_text_embedding(text):
     #Convert text embedding from a numpy array to a list
     CACHED_TEXT_EMBEDDING = text_embedding.cpu().numpy().tolist()
     end_time = time.time()
-    print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")     
+    print(f"Get text embedding execution time: {(end_time - start_time) * 1000} ms")     
     return CACHED_TEXT_EMBEDDING
 
 def pinecone_query(embedding): 
@@ -180,10 +180,7 @@ def pinecone_query(embedding):
     f.close()
     return images, query_response_time
 
-def get_text_images(text):
-    text_embedding = get_text_embedding(text)
-    images, query_response_time = pinecone_query(text_embedding)
-    return [image for image in images]
+
 
 def get_url_status(url):
     try:
@@ -207,6 +204,11 @@ def get_images():
     image_embedding = get_image_embedding()
     images, query_response_time = pinecone_query(image_embedding)
 
+    return [image for image in images]
+
+def get_text_images(text):
+    text_embedding = get_text_embedding(text)
+    images, query_response_time = pinecone_query(text_embedding)
     return [image for image in images]
 
 @app.get("/images")
