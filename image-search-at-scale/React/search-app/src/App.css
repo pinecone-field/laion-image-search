@@ -86,7 +86,7 @@ body {
   margin-right: 20px; /* Add margin to push the photo to the right */
 }
 
-.search-input {
+.search-bar input {
   padding: 8px;
   font-size: 16px;
   border: 1px solid #ccc;
@@ -95,7 +95,7 @@ body {
   width: 200px;
 }
 
-.search-button {
+.search-bar button {
   padding: 8px 16px;
   font-size: 16px;
   border: none;
@@ -109,35 +109,76 @@ body {
   background-color: #45a049;
 }
 
-.drag-drop-box {
-  padding: 20px;
-  border: 2px dashed #ccc;
-  border-radius: 4px;
-  background-color: white;
-  color: black;
-  text-align: center;
-  width: 200px;
-  height: 100px;
+.image-fetch-wrapper {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  margin-right: 20px; /* Add margin to push the photo to the right */
+}
+
+.image-search-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px; /* Space between the dropzone and the photo */
+}
+
+.drag-drop-box, .original-photo {
+  flex: 1;
+  max-width: 45%; /* Ensure they don't exceed 45% of the container width */
+}
+
+.drag-drop-box {
+  border: 2px dashed #ccc;
+  padding: 20px;
+  margin-top: 30px;
+  height: 100%;
+  color: #0a3777d4;
+  text-align: center;
+  background-color: #f7f5f5;
+  height: 200px;
+  border-radius: 10px;
+  transition: background-color 0.3s;
+  align-items: center;
+}
+
+.drag-drop-box:hover {
+  background-color: #f0f0f0;
 }
 
 .original-photo {
-  text-align: center; /* Center align the original photo */
+  text-align: center;
 }
 
 .original-photo-title {
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 1.2em;
   margin-bottom: 10px;
 }
 
 .original-photo-image {
-  width: 100%;
-  height: auto;
-  max-width: 300px;
-  display: inline-block; /* Display the image as inline-block */
-  margin-left: 20px; /* Adjust margin to push photo slightly right */
+  max-width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.image-fetch-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.fetch-image-button button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+
+.image-fetch-container button:hover {
+  background-color: #f2f2f2;
+  transform: scale(1.05);
 }

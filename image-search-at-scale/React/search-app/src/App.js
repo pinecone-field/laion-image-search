@@ -25,6 +25,10 @@ function App() {
     })));
   }
 
+  const handleSearchTextChange = (text) => {
+    setSearchText(text)
+  }
+
   useEffect(() => {
     return () => {
       files.forEach((file) => URL.revokeObjectURL(file.preview))
@@ -69,19 +73,26 @@ function App() {
         <div className="search-container">
           {searchMode === 'text' ? (
             <div className="search-bar">
-              <Search/>
+              <Search searchMode={searchMode}/>
             </div>
           ) : (
-              <Dropzone onDrop={handleDrop} />
+              <div className='image-search-wrapper'>
+                <div className='image-search-container'>
+                  <Dropzone onDrop={handleDrop} />
+                    <div className="original-photo">
+                    <h2 className="original-photo-title">Photo to Search</h2>
+                    <img src={OriginalImage} alt="Original Photo" className="original-photo-image" />
+                  </div>
+                </div>
+                <div className='fetch-image-button'>
+                      <ImageFetch searchMode={searchMode}/>
+                    </div>
+              </div>  
           )}
-          <div className="original-photo">
-            <h2 className="original-photo-title">Photo to Search</h2>
-            <img src={OriginalImage} alt="Original Photo" className="original-photo-image" />
-          </div>
         </div>
       </header>
-      <ImageFetch/>
-      <ImageDisplay/>
+      
+      <ImageDisplay set/>
     </div>
     </ImageProvider>
   );
