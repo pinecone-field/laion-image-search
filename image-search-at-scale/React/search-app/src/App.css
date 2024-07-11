@@ -75,7 +75,7 @@ body {
   margin-right: 20px; /* Add margin to push the photo to the right */
 }
 
-.search-input {
+.search-bar input {
   padding: 8px;
   font-size: 16px;
   border: 1px solid #ccc;
@@ -84,7 +84,7 @@ body {
   width: 200px;
 }
 
-.search-button {
+.search-bar button {
   padding: 8px 16px;
   font-size: 16px;
   border: none;
@@ -119,9 +119,12 @@ body {
 .drag-drop-box {
   border: 2px dashed #ccc;
   padding: 20px;
+  margin-top: 30px;
+  height: 100%;
   color: #0a3777d4;
   text-align: center;
   background-color: #f7f5f5;
+  height: 200px;
   border-radius: 10px;
   transition: background-color 0.3s;
   align-items: center;

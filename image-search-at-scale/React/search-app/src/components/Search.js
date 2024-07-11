@@ -35,7 +35,7 @@ const SearchComponent = () => {
   };
 
   return (
-    <div>
+    <div className='search-bar'>
       <input
         type="text"
         value={searchText}
