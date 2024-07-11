@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { ImageContext } from './ImageContext';
 
-const ImageFetch = () => {
+const ImageFetch = ({ onImagesFetched }) => {
   const { setImages } = useContext(ImageContext);
   const [error, setError] = useState(null);
-  const [fetching, setFetching] = useState(false); // State to track fetching status
+  const [fetching, setFetching] = useState(false);
 
   const fetchImages = () => {
-    setFetching(true); // Set fetching to true to disable button and show loading indicator
+    setFetching(true);
     fetch('http://localhost:8000/images')
       .then(response => {
         if (!response.ok) {
@@ -16,19 +16,20 @@ const ImageFetch = () => {
         return response.json();
       })
       .then(data => {
-        console.log('Fetched data:', data); // Log fetched data for debugging
+        console.log('Fetched data:', data);
         if (Array.isArray(data)) {
-          setImages(data);
+          setImages(data); // Store fetched images globally
+          onImagesFetched(data); // Update local state in App.js
         } else {
           throw new Error('Fetched data is not an array');
         }
       })
       .catch(error => setError(error))
-      .finally(() => setFetching(false)); // Set fetching to false after fetching completes
+      .finally(() => setFetching(false));
   };
 
   const handleButtonClick = () => {
-    fetchImages(); // Call fetchImages when button is clicked
+    fetchImages();
   };
 
   if (error) {

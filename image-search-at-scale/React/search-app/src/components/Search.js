@@ -1,19 +1,11 @@
-// src/components/SearchComponent.js
-import React, { useContext, useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { ImageContext } from './ImageContext';
 
-const SearchComponent = () => {
+const SearchComponent = ({ onSearchResults }) => {
   const [searchText, setSearchText] = useState('');
   const { setImages } = useContext(ImageContext);
-  const [searchResults, setSearchResults] = useState([]);
   const [error, setError] = useState(null);
-  const [fetching, setFetching] = useState(false); // State to track fetching status
-
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      handleSearchSubmit();
-    }
-  };
+  const [fetching, setFetching] = useState(false);
 
   const handleSearchSubmit = async () => {
     setFetching(true);
@@ -33,13 +25,14 @@ const SearchComponent = () => {
     .then(data => {
       console.log('Fetched data:', data);
       if (Array.isArray(data)) {
-        setImages(data)
+        setImages(data); // Store fetched images globally
+        onSearchResults(data); // Update local state in App.js
       } else {
         throw new Error('Fetched data is not an array');
       }
     })
     .catch(error => setError(error))
-    .finally(() => setFetching(false))
+    .finally(() => setFetching(false));
   };
 
   return (
@@ -48,7 +41,11 @@ const SearchComponent = () => {
         type="text"
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
-        onKeyPress={handleKeyPress}
+        onKeyPress={(event) => {
+          if (event.key === 'Enter') {
+            handleSearchSubmit();
+          }
+        }}
       />
       <button onClick={handleSearchSubmit} disabled={fetching}>
         {fetching ? 'Searching...' : 'Search Images'}
