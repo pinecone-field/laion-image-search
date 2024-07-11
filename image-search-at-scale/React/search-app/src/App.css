@@ -1,3 +1,12 @@
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./assets/Inter-VariableFont.ttf');
+
+}
+
+
 body {
   margin: 0;
   font-family: 'Arial', sans-serif;
@@ -39,6 +48,8 @@ body {
   margin-left: 215px;
   margin-right: 250px;
   font-size: 40px;
+  font-family: 'Inter';
+  font-weight: 501;
   text-align: center;
   margin-top: 10px;
 }
