@@ -8,6 +8,7 @@ import Dropzone from './components/Dropzone';
 import Search from './components/Search';
 import ImageDisplay from './components/ImageDisplay';
 import { ImageProvider } from './components/ImageContext';
+import IndexSizeDisplay from './components/IndexSizeDisplay';
 
 function App() {
 
@@ -71,6 +72,10 @@ function App() {
             </label>
           </div>
         </div>
+        </header>
+        <div className='index-size-display'>
+          <IndexSizeDisplay />
+        </div>
         <div className="search-container">
           {searchMode === 'text' ? (
             <div className="search-bar">
@@ -91,7 +96,6 @@ function App() {
               </div>  
           )}
         </div>
-      </header>
       
       <ImageDisplay set/>
     </div>

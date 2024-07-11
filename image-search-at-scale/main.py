@@ -226,6 +226,14 @@ async def upload_file(file:UploadFile = File(...)):
         return {"message": "Upload Successful!"}
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+    
+@app.get("/index-size")
+async def get_index_size():
+    pc = Pinecone(api_key=PINECONE_API_KEY)
+    index = pc.Index(PINECONE_INDEX_NAME)
+    index_info = index.describe_index_stats()
+    print(index_info['total_vector_count'])
+    return index_info['total_vector_count']
 
 @app.post("/images")
 async def save_search(search_text: SearchText):
