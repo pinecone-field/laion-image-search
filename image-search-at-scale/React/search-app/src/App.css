@@ -78,7 +78,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 60px;
 }
 
 .search-bar {
@@ -107,8 +107,9 @@ body {
   cursor: pointer;
 }
 
-.search-button:hover {
-  background-color: #45a049;
+.search-bar button:hover {
+  transition: background-color 0.3s, transform 0.3s;
+  background-color: #007506;
 }
 
 .image-fetch-wrapper {
@@ -159,6 +160,7 @@ body {
 
 .original-photo-image {
   max-width: 100%;
+  max-height: 100%;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -181,7 +183,7 @@ body {
 }
 
 
-.image-fetch-container button:hover {
-  background-color: #f2f2f2;
+.fetch-image-button button:hover {
+  background-color: #052eaa;
   transform: scale(1.05);
 }
