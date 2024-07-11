@@ -122,16 +122,25 @@ body {
   margin-top: 30px;
   height: 100%;
   color: #0a3777d4;
-  text-align: center;
+
   background-color: #f7f5f5;
-  height: 200px;
+  height: 160px;
+  width: 185px;
   border-radius: 10px;
   transition: background-color 0.3s;
   align-items: center;
+  justify-content: center;
+  transition: transform 0.3s;
+}
+
+.drag-drop-box text {
+  font-family: Inter;
+  text-align: center;
 }
 
 .drag-drop-box:hover {
-  background-color: #f0f0f0;
+  background-color: #c3c3c3de;
+  transform: scale(1.05);
   cursor: pointer;
 }
 
@@ -145,8 +154,8 @@ body {
 }
 
 .original-photo-image {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 200px;
+  max-height: 200px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
