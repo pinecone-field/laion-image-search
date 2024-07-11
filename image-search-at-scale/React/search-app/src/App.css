@@ -31,19 +31,19 @@ body {
 }
 
 .pinecone-logo {
-  margin-right: 250px;
   width: 250px;
   height: auto;
 }
 
 .header-title {
+  margin-left: 215px;
+  margin-right: 250px;
   font-size: 40px;
   text-align: center;
   margin-top: 10px;
 }
 
 .slider-container {
-  margin-left: 250px;
   display: flex;
   align-items: center;
   background-color: #fff;
@@ -73,7 +73,8 @@ body {
   display: none;
 }
 
-.search-container {
+.search-container { 
+  margin-left: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -81,6 +82,7 @@ body {
 }
 
 .search-bar {
+  margin-top: 40px;
   display: flex;
   align-items: center;
   margin-right: 20px; /* Add margin to push the photo to the right */
@@ -116,6 +118,7 @@ body {
 }
 
 .image-search-container {
+  margin-top: 50px;
   display: flex;
   justify-content: space-between;
   align-items: center;
