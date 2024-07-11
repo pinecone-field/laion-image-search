@@ -19,27 +19,38 @@ body {
 .header-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   margin-bottom: 20px;
+  background-color: rgb(255, 255, 255);
+  color: black;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
 }
 
 .pinecone-logo {
-  width: 100px;
+  margin-right: 250px;
+  width: 250px;
   height: auto;
 }
 
 .header-title {
   font-size: 40px;
+  text-align: center;
   margin-top: 10px;
 }
 
 .slider-container {
+  margin-left: 250px;
   display: flex;
   align-items: center;
   background-color: #fff;
   border-radius: 20px;
   padding: 5px 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  margin-right: 20px;
 }
 
 .slider-label {

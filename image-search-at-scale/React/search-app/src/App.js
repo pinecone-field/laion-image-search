@@ -13,7 +13,6 @@ function App() {
   const [searchMode, setSearchMode] = useState('text'); // State to toggle between text and image search
   const [files, setFiles] = useState([]);
   const [searchText, setSearchText] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
 
 
   const handleModeChange = (e) => {
@@ -40,7 +39,9 @@ function App() {
     <div className="App">
       <header className="App-header">
         <div className="header-content">
-          <img src={PineconeLogo} alt="Pinecone Logo" className="pinecone-logo" />
+          <a href="https://www.pinecone.io" target="_blank">
+            <img src={PineconeLogo} alt="Pinecone Logo" className="pinecone-logo" />
+            </a>
           <h1 className="header-title">Image Search Demo</h1>
           <div className="slider-container">
             <label className={`slider-label ${searchMode === 'text' ? 'active' : ''}`}>
