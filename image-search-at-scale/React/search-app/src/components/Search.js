@@ -6,32 +6,40 @@ const SearchComponent = () => {
   const [searchText, setSearchText] = useState('');
   const { setImages } = useContext(ImageContext);
   const [searchResults, setSearchResults] = useState([]);
-
-  const handleSearchSubmit = async () => {
-    try {
-      const response = await fetch('http://localhost:8000/images', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ searchText }),
-      });
-      if (response.ok) {
-        const results = await response.json();
-        setImages(results);
-      } else {
-        alert('Failed to fetch search results.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred.');
-    }
-  };
+  const [error, setError] = useState(null);
+  const [fetching, setFetching] = useState(false); // State to track fetching status
 
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
       handleSearchSubmit();
     }
+  };
+
+  const handleSearchSubmit = async () => {
+    setFetching(true);
+    fetch('http://localhost:8000/images', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ searchText }),
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Fetched data:', data);
+      if (Array.isArray(data)) {
+        setImages(data)
+      } else {
+        throw new Error('Fetched data is not an array');
+      }
+    })
+    .catch(error => setError(error))
+    .finally(() => setFetching(false))
   };
 
   return (
@@ -42,8 +50,9 @@ const SearchComponent = () => {
         onChange={(e) => setSearchText(e.target.value)}
         onKeyPress={handleKeyPress}
       />
-      <button onClick={handleSearchSubmit}>Search</button>
-      {/* Render searchResults here */}
+      <button onClick={handleSearchSubmit} disabled={fetching}>
+        {fetching ? 'Searching...' : 'Search Images'}
+      </button>
     </div>
   );
 };

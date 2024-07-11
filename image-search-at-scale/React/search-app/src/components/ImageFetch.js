@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from 'react';
-//import './ImageFetch.css'; // Import the CSS file
 import { ImageContext } from './ImageContext';
 
 const ImageFetch = () => {
@@ -8,7 +7,7 @@ const ImageFetch = () => {
   const [fetching, setFetching] = useState(false); // State to track fetching status
 
   const fetchImages = () => {
-    setFetching(true); // Set fetching to true to show loading indicator if needed
+    setFetching(true); // Set fetching to true to disable button and show loading indicator
     fetch('http://localhost:8000/images')
       .then(response => {
         if (!response.ok) {
@@ -28,10 +27,6 @@ const ImageFetch = () => {
       .finally(() => setFetching(false)); // Set fetching to false after fetching completes
   };
 
-  useEffect(() => {
-    fetchImages(); // Fetch images on component mount
-  }, []); // Empty dependency array means this effect runs once when the component mounts
-
   const handleButtonClick = () => {
     fetchImages(); // Call fetchImages when button is clicked
   };
@@ -42,9 +37,11 @@ const ImageFetch = () => {
 
   return (
     <div>
-      <button onClick={handleButtonClick} disabled={fetching}>Fetch Images</button>
+      <button onClick={handleButtonClick} disabled={fetching}>
+        {fetching ? 'Fetching...' : 'Fetch Images'}
+      </button>
     </div>
-    );
+  );
 };
 
 export default ImageFetch;

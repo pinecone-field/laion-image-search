@@ -97,21 +97,6 @@ body {
   width: 200px;
 }
 
-.search-bar button {
-  padding: 8px 16px;
-  font-size: 16px;
-  border: none;
-  border-radius: 4px;
-  background-color: #4CAF50;
-  color: white;
-  cursor: pointer;
-}
-
-.search-bar button:hover {
-  transition: background-color 0.3s, transform 0.3s;
-  background-color: #007506;
-}
-
 .image-fetch-wrapper {
   display: flex;
   flex-direction: column;
@@ -147,6 +132,7 @@ body {
 
 .drag-drop-box:hover {
   background-color: #f0f0f0;
+  cursor: pointer;
 }
 
 .original-photo {
@@ -182,8 +168,33 @@ body {
   transition: background-color 0.3s, transform 0.3s;
 }
 
+.fetch-image-button button:disabled {
+  cursor: not-allowed; 
+  opacity: 0.6; 
+}
 
-.fetch-image-button button:hover {
+
+.fetch-image-button button:not(:disabled):hover {
   background-color: #052eaa;
   transform: scale(1.05);
+}
+
+.search-bar button {
+  padding: 8px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+}
+
+.search-bar button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.search-bar button:not(:disabled):hover {
+  transition: background-color 0.3s, transform 0.3s;
+  background-color: #007506;
 }
