@@ -7,6 +7,7 @@ import Dropzone from './components/Dropzone';
 import Search from './components/Search';
 import ImageDisplay from './components/ImageDisplay';
 import { ImageProvider } from './components/ImageContext';
+import IndexSizeDisplay from './components/IndexSizeDisplay';
 
 function App() {
   const [searchMode, setSearchMode] = useState('text');
@@ -31,6 +32,7 @@ function App() {
             <a href="https://www.pinecone.io" target="_blank">
               <img src={PineconeLogo} alt="Pinecone Logo" className="pinecone-logo" />
             </a>
+
             <h1 className="header-title">Image Search Demo</h1>
             <div className="slider-container">
               <label className={`slider-label ${searchMode === 'text' ? 'active' : ''}`}>
