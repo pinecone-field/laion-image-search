@@ -84,6 +84,15 @@ body {
   display: none;
 }
 
+
+.index-size-display {
+  position: absolute;
+  margin-top: 60px;
+  top: 20px;
+  right: 20px;
+  font-family: 'Inter';
+}
+
 .search-container { 
   margin-left: 50px;
   display: flex;
