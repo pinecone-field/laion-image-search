@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import './App.css'
+import './components/fonts.css'
 import ImageFetch from './components/ImageFetch';
 import PineconeLogo from './assets/pinecone-logo-black.png'
 import OriginalImage from './assets/image.jpeg'
