@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import JSONResponse
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 import hashlib
@@ -9,8 +10,11 @@ from pinecone import Pinecone
 import time
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import List
 
 import requests
+import shutil
 
 app = FastAPI()
 
@@ -29,7 +33,8 @@ app.add_middleware(
 load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
-IMAGE_PATH = "./static/image.jpeg"
+BACKEND_IMAGE_PATH = "./static/image.jpeg"
+FRONTEND_IAMGE_PATH = "./React/search-app/src/assets/image.jpeg"
 TEXT_PATH = "./static/text.txt"
 MODEL = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 PROCESSOR = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
@@ -38,10 +43,19 @@ CACHED_IMAGE_HASH = None
 CACHED_EMBEDDING = None
 CACHED_TEXT = None
 CACHED_TEXT_EMBEDDING = None 
+search_text_storage = ""
 
 def get_image_hash(image_path):
     with open(image_path, 'rb') as f:
         return hashlib.md5(f.read()).hexdigest()
+    
+class SearchText(BaseModel):
+    searchText: str
+
+class SearchResult(BaseModel):
+    caption: str
+    score: float
+    url: str
     
 def get_image_embedding():
     global CACHED_IMAGE_HASH
@@ -49,7 +63,7 @@ def get_image_embedding():
     start_time = time.time()
 
     # Get the hash of the new image
-    new_image_hash = get_image_hash(IMAGE_PATH)
+    new_image_hash = get_image_hash(BACKEND_IMAGE_PATH)
 
     # If the hash of the new image is the same as the hash of the cached image,
     # the image has not changed
@@ -60,7 +74,7 @@ def get_image_embedding():
     CACHED_IMAGE_HASH = new_image_hash
     # If the hash of the new image is the same as the hash of the cached image,
     print("Computing the image embedding")
-    image = Image.open(IMAGE_PATH)
+    image = Image.open(BACKEND_IMAGE_PATH)
 
     # Preprocess the image and return PyTorch tensor
     inputs = PROCESSOR(images=image, return_tensors="pt")
@@ -140,11 +154,25 @@ def get_removed_vectors():
         removed_vectors.append([line[:line.find(',')], line[line.find(',')+1:len(line)-1]])
     return removed_vectors
 
-@app.get("/images")
-async def image_similarity_search():
+def get_images():
     image_embedding = get_image_embedding()
     images, query_response_time = pinecone_query(image_embedding)
 
     return [image for image in images]
+
+@app.get("/images")
+async def image_similarity_search():
+    return get_images()
+
+@app.post("/upload")
+async def upload_file(file:UploadFile = File(...)):
+    try:
+        with open(BACKEND_IMAGE_PATH, "wb+") as file_object:
+            shutil.copyfileobj(file.file, file_object)
+        shutil.copy(BACKEND_IMAGE_PATH, FRONTEND_IAMGE_PATH)
+        return {"message": "Upload Successful!"}
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
 
 app.mount("/", StaticFiles(directory="static"), name="static")
