@@ -49,7 +49,7 @@ body {
   margin-right: 250px;
   font-size: 40px;
   font-family: 'Inter';
-  font-weight: 501;
+  font-weight: 500;
   text-align: center;
   margin-top: 10px;
 }
@@ -87,7 +87,7 @@ body {
 
 .index-size-display {
   position: absolute;
-  margin-top: 60px;
+  margin-top: 65px;
   top: 20px;
   right: 20px;
   font-family: 'Inter';

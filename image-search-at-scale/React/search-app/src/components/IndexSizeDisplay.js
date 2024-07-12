@@ -26,12 +26,14 @@ const IndexSizeDisplay = () => {
     fetchIndexSize();
   }, []);
 
+  var nf = new Intl.NumberFormat();
+
   return (
     <div>
       {loading && <p>Loading...</p>}
       {error && <p>Error: {error}</p>}
       {indexSize && (
-        <p>Index Size: {indexSize}</p>
+        <p>Index Size: {nf.format(indexSize)}</p>
       )}
     </div>
   );

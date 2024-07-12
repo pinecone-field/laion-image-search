@@ -57,6 +57,10 @@ function App() {
               </label>
             </div>
           </div>
+         </header>
+         <div className='index-size-display'>
+          <IndexSizeDisplay />
+         </div>
           <div className="search-container">
             {searchMode === 'text' ? (
               <div className="search-bar">
@@ -77,7 +81,6 @@ function App() {
               </div>
             )}
           </div>
-        </header>
         
         <ImageDisplay
           searchMode={searchMode}
