@@ -86,7 +86,7 @@ body {
 
 
 .index-size-display {
-  position: absolute;
+  position: fixed;
   margin-top: 65px;
   top: 20px;
   right: 20px;
