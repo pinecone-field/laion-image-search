@@ -62,6 +62,8 @@ def pinecone_query(embedding):
     
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
+    f = open("./static/dead_links.txt", "a") #contains vector id and url of deleted vectors, separated by a comma
+
 
     dead_links = True
     while dead_links:
