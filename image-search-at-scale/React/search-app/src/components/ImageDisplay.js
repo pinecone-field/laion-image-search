@@ -3,9 +3,19 @@ import React, { useContext, useState } from 'react';
 import './ImageDisplay.css'; // Import the CSS file
 import { ImageContext } from './ImageContext';
 
-const ImageDisplay = () => {
+const ImageDisplay = ( {searchMode, textImages, imageFiles} ) => {
   const { images } = useContext(ImageContext);
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState([])
+
+  const getImagesToDisplay = () => {
+    if (searchMode === 'text') {
+      return textImages;
+    } else {
+      return imageFiles;
+    }
+  };
+
+  const imagesToShow = getImagesToDisplay();
 
   const handleMouseEnter = (index) => {
     setHoveredIndex(index);
@@ -19,7 +29,7 @@ const ImageDisplay = () => {
     <div className="image-grid-container">
       <h1>Search Results</h1>
       <div className="image-grid">
-        {images.map((image, index) => (
+        {imagesToShow.map((image, index) => (
           <div
             key={index}
             className="image-item"
@@ -30,7 +40,7 @@ const ImageDisplay = () => {
               Similarity Score: {image.score}
             </div>
             <img
-              src={image.url} // Adjust based on your data structure
+              src={image.url}
               alt={`Image ${index}`}
               className="image"
             />
