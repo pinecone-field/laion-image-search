@@ -11,7 +11,7 @@ import time
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 import requests
 import shutil
@@ -51,6 +51,7 @@ def get_image_hash(image_path):
     
 class SearchText(BaseModel):
     searchText: str
+    #searchMode: Optional[str] = "text"
 
 class SearchResult(BaseModel):
     caption: str
@@ -88,6 +89,30 @@ def get_image_embedding():
     end_time = time.time()
     print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
     return CACHED_EMBEDDING
+
+def get_text_embedding(text):
+    global CACHED_TEXT
+    global CACHED_TEXT_EMBEDDING
+    start_time = time.time()
+    #Commenting out as implementation has changed
+    #f = open(TEXT_PATH, 'w')
+    #text = f.read()
+    #If the text is the same then the embedding is the same
+    if text == CACHED_TEXT: 
+        print("Text has not changed. Using cached text embedding")
+        return CACHED_TEXT_EMBEDDING
+    CACHED_TEXT = text
+    inputs = PROCESSOR(text = text, return_tensors="pt")
+
+    #Generate text embedding
+    with torch.no_grad():
+        text_embedding = MODEL.get_text_features(**inputs)
+
+    #Convert text embedding from a numpy array to a list
+    CACHED_TEXT_EMBEDDING = text_embedding.cpu().numpy().tolist()
+    end_time = time.time()
+    print(f"Get text embedding execution time: {(end_time - start_time) * 1000} ms")     
+    return CACHED_TEXT_EMBEDDING
 
 def pinecone_query(embedding):
     
@@ -160,6 +185,12 @@ def get_images():
 
     return [image for image in images]
 
+def get_text_images(text):
+    text_embedding = get_text_embedding(text)
+    #embedding = get_image_embedding()
+    images, query_response_time = pinecone_query(text_embedding)
+    return [image for image in images]
+
 @app.get("/images")
 async def image_similarity_search():
     return get_images()
@@ -174,5 +205,8 @@ async def upload_file(file:UploadFile = File(...)):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
+@app.post("/images")
+async def save_search(search_text: SearchText):
+    return get_text_images(search_text.searchText)
 
 app.mount("/", StaticFiles(directory="static"), name="static")

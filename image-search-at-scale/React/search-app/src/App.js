@@ -1,9 +1,12 @@
 import React, {useState, useEffect} from 'react'
 import './App.css'
-import ImageFetch from './ImageFetch';
+import ImageFetch from './components/ImageFetch';
 import PineconeLogo from './assets/pinecone-logo-black.png'
 import OriginalImage from './assets/image.jpeg'
-import Dropzone from './Dropzone';
+import Dropzone from './components/Dropzone';
+import Search from './components/Search';
+import ImageDisplay from './components/ImageDisplay';
+import { ImageProvider } from './components/ImageContext';
 
 function App() {
 
@@ -11,6 +14,7 @@ function App() {
   const [files, setFiles] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+
 
   const handleModeChange = (e) => {
     setSearchMode(e.target.value);
@@ -31,28 +35,8 @@ function App() {
     setSearchText(e.target.value);
   };
 
-  const handleSearchSubmit = async () => {
-    try {
-      const response = await fetch('http://localhost:8000/images', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ searchText }),
-      });
-      if (response.ok) {
-        const results = await response.json();
-        setSearchResults(results);
-      } else {
-        alert('Failed to fetch search results.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred.');  // add useEffect?????
-    }
-  };
-
   return (
+    <ImageProvider>
     <div className="App">
       <header className="App-header">
         <div className="header-content">
@@ -84,16 +68,7 @@ function App() {
         <div className="search-container">
           {searchMode === 'text' ? (
             <div className="search-bar">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="search-input"
-                value={searchText}
-                onChange={handleSearchChange}
-              />
-              <button className="search-button" onClick={handleSearchSubmit}>
-                Search
-              </button>
+              <Search/>
             </div>
           ) : (
               <Dropzone onDrop={handleDrop} />
@@ -105,7 +80,9 @@ function App() {
         </div>
       </header>
       <ImageFetch/>
+      <ImageDisplay/>
     </div>
+    </ImageProvider>
   );
 }
 
