@@ -209,12 +209,4 @@ async def upload_file(file:UploadFile = File(...)):
 async def save_search(search_text: SearchText):
     return get_text_images(search_text.searchText)
 
-# @app.post("/images"
-# async def return_results(search_mode: SearchMode)
-#     If search_mode == "text"
-#         return get_text_images(text)
-#     else
-#         return get_image_embedding()
-
-
 app.mount("/", StaticFiles(directory="static"), name="static")
