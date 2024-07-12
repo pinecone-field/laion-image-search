@@ -114,26 +114,6 @@ def get_text_embedding(text):
     print(f"Get text embedding execution time: {(end_time - start_time) * 1000} ms")     
     return CACHED_TEXT_EMBEDDING
 
-def pinecone_query(embedding): 
-    start_time = time.time()
-    pc = Pinecone(api_key=PINECONE_API_KEY)
-    index = pc.Index(PINECONE_INDEX_NAME)
-    images = []
-    result = index.query(
-        vector=embedding, 
-        top_k=10,
-        include_metadata=True
-    )
-    
-    for m in result.matches:
-        images.append({
-                "caption": m.metadata["caption"],
-                "url": m.metadata["url"],
-                "score": m.score
-            })
-    query_response_time = round((time.time() - start_time) * 1000, 0)
-    print(f"Pinecone query execution time: {query_response_time} ms")
-
 def pinecone_query(embedding):
     
     pc = Pinecone(api_key=PINECONE_API_KEY)
@@ -180,8 +160,6 @@ def pinecone_query(embedding):
                 })
     f.close()
     return images, query_response_time
-
-
 
 def get_url_status(url):
     try:
