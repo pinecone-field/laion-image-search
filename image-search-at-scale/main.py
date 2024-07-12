@@ -75,51 +75,6 @@ def get_image_embedding():
     print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
     return CACHED_EMBEDDING
 
-def get_text_embedding():
-    global CACHED_TEXT
-    global CACHED_TEXT_EMBEDDING
-    start_time = time.time()
-    f = open(TEXT_PATH, 'r')
-    text = f.read()
-    f.close()
-
-    #If the text is the same then the embedding is the same
-    if text == CACHED_TEXT: 
-        print("Text has not changed. Using cached text embedding")
-        return CACHED_TEXT_EMBEDDING
-    CACHED_TEXT = text
-    inputs = PROCESSOR(text = text, return_tensors="pt")
-
-    #Generate text embedding
-    with torch.no_grad():
-        text_embedding = MODEL.get_text_features(**inputs)
-
-    #Convert text embedding from a numpy array to a list
-    CACHED_TEXT_EMBEDDING = text_embedding.cpu().numpy().tolist()
-    end_time = time.time()
-    print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")     
-    return CACHED_TEXT_EMBEDDING
-
-def pinecone_query(embedding): 
-    start_time = time.time()
-    pc = Pinecone(api_key=PINECONE_API_KEY)
-    index = pc.Index(PINECONE_INDEX_NAME)
-    images = []
-    result = index.query(
-        vector=embedding, 
-        top_k=10,
-        include_metadata=True
-    )
-    
-    for m in result.matches:
-        images.append({
-                "caption": m.metadata["caption"],
-                "url": m.metadata["url"],
-                "score": m.score
-            })
-    query_response_time = round((time.time() - start_time) * 1000, 0)
-    print(f"Pinecone query execution time: {query_response_time} ms")
-
 def pinecone_query(embedding):
     
     pc = Pinecone(api_key=PINECONE_API_KEY)
