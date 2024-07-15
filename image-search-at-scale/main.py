@@ -92,12 +92,12 @@ def pinecone_query(embedding):
     query_response_time = round((time.time() - start_time) * 1000, 0)
     print(f"Pinecone query execution time: {query_response_time} ms")
 
-
+    return images
 
 @app.get("/images")
 async def image_similarity_search():
     image_embedding = get_image_embedding()
-    images, query_response_time = pinecone_query(image_embedding)
+    images = pinecone_query(image_embedding)
 
     return [image for image in images]
 
