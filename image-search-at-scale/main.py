@@ -1,15 +1,15 @@
-from fastapi import FastAPI
-from transformers import CLIPProcessor, CLIPModel
-from PIL import Image
 import hashlib
-import torch
-from dotenv import load_dotenv
 import os
-from pinecone import Pinecone
 import time
-from fastapi.staticfiles import StaticFiles
 
+from PIL import Image
+from dotenv import load_dotenv
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 import requests
+import torch
+from transformers import CLIPModel, CLIPProcessor
+from pinecone import Pinecone
 
 app = FastAPI()
 
