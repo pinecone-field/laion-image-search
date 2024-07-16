@@ -59,25 +59,26 @@ def get_embedding():
     return CACHED_EMBEDDING
 
 def pinecone_query(embedding):
-    
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
-    f = open("./static/dead_links.txt", "a") #contains vector id and url of deleted vectors, separated by a comma
-
+    #contains vector id and url of deleted vectors, separated by a comma
+    f = open("./static/dead_links.txt", "a") 
 
     dead_links = True
     while dead_links:
-        start_time = time.time()
         dead_link_count = 0
         images = []
         metadata_filter = {"url": {"$ne": "404"}} 
 
+        query_start_time = time.time()
         result = index.query(
             vector=embedding,
             top_k=10,
             include_metadata=True,
-            filter=metadata_filter #Only return images form query where url != 404
+            filter=metadata_filter 
         )
+        query_response_time = round((time.time() - query_start_time) * 1000, 0)
+        print(f"Pinecone query execution time: {query_response_time} ms")
 
         for match in result.matches:
             url = match["metadata"]["url"]
@@ -90,9 +91,6 @@ def pinecone_query(embedding):
 
         if dead_link_count == 0:
             dead_links = False
-
-        query_response_time = round((time.time() - start_time) * 1000, 0)
-        print(f"Pinecone query execution time: {query_response_time} ms")
 
         for m in result.matches:
             images.append({
