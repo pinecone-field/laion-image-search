@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './ImageFetch.css'; // Import the CSS file
+import './ImageFetch.css';
 
 const ImageFetch = () => {
   const [images, setImages] = useState([]);
@@ -15,7 +15,7 @@ const ImageFetch = () => {
         return response.json();
       })
       .then(data => {
-        console.log('Fetched data:', data); // Log fetched data for debugging
+        console.log('Fetched data:', data); 
         if (Array.isArray(data)) {
           setImages(data);
         } else {
@@ -23,7 +23,7 @@ const ImageFetch = () => {
         }
       })
       .catch(error => setError(error));
-  }, []); // Empty dependency array means this effect runs once when the component mounts
+  }, []); 
 
   const handleMouseEnter = (index) => {
     setHoveredIndex(index);
@@ -52,7 +52,7 @@ const ImageFetch = () => {
                 Similarity Score: {image.score}
               </div>
               <img
-                src={image.url} // Adjust based on your data structure
+                src={image.url}
                 alt={`Image ${index}`}
                 className="image"
               />

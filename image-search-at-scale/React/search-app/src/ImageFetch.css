@@ -13,7 +13,7 @@
 
 .image-item {
   position: relative;
-  text-align: center; /* Center align content */
+  text-align: center; 
   flex-direction: column;
   align-items: center;
 }
@@ -24,17 +24,16 @@
   width: auto;
   height: auto;
   display: block;
-  transition: transform 0.3s ease; /* Smooth transition for hover effect */
-  border-radius: 5px;
+  transition: transform 0.3s ease; 
   object-fit: cover;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);/* Optional: adds a subtle shadow */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   background-color: aliceblue; 
 }
 
 .similarity-score {
-  font-size: 18px; /* Larger font size */
-  font-weight: bold; /* Bold font weight */
-  margin-bottom: 10px; /* Space between score and image */
+  font-size: 18px; 
+  font-weight: bold; 
+  margin-bottom: 10px; 
 }
 
 .image-footer {
@@ -51,7 +50,7 @@
   height: 0;
   overflow: hidden;
   opacity: 0;
-  transition: opacity 0.3s ease, height 0.3s ease; /* Smooth transition for opacity and height change */
+  transition: opacity 0.3s ease, height 0.3s ease; 
 }
 
 .image-item:hover .image-footer {

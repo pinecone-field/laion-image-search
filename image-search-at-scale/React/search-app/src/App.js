@@ -1,13 +1,12 @@
 import React, {useState, useEffect} from 'react'
 import './App.css'
-import api from './api'
 import ImageFetch from './ImageFetch';
 import PineconeLogo from './assets/pinecone-logo-black.png'
 import OriginalImage from './assets/image.jpeg'
 
 
 function App() {
-  const [searchMode, setSearchMode] = useState('text'); // State to toggle between text and image search
+  const [searchMode, setSearchMode] = useState('text'); 
 
   const handleModeChange = (e) => {
     setSearchMode(e.target.value);

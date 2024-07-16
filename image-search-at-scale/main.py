@@ -39,7 +39,7 @@ CACHED_EMBEDDING = None
 def get_image_hash(image_path):
     with open(image_path, 'rb') as f:
         return hashlib.md5(f.read()).hexdigest()
-    
+
 def get_image_embedding():
     global CACHED_IMAGE_HASH
     global CACHED_EMBEDDING
@@ -72,13 +72,13 @@ def get_image_embedding():
     print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
     return CACHED_EMBEDDING
 
-def pinecone_query(embedding): 
+def pinecone_query(embedding):
     start_time = time.time()
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
     images = []
     result = index.query(
-        vector=embedding, 
+        vector=embedding,
         top_k=10,
         include_metadata=True
     )
