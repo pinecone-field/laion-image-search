@@ -94,7 +94,6 @@ def pinecone_query(embedding):
             "url": m.metadata["url"],
             "score": m.score
         })
-
     return images, query_response_time
 
 def validate_url(url):
@@ -105,7 +104,7 @@ def validate_url(url):
         else:
             return False
     except requests.exceptions.RequestException as e:
-        print(f"\nCannot Reach:\n{url}.\nError: {e}\n")
+        print(f"Cannot Reach:\n{url}.\nError: {e}")
         return False
     
 @app.get("/images")
