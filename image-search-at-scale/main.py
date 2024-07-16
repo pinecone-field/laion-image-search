@@ -61,14 +61,12 @@ def get_embedding():
 def pinecone_query(embedding):
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
-    #contains vector id and url of deleted vectors, separated by a comma
-    f = open("./static/dead_links.txt", "a") 
 
     dead_links = True
     while dead_links:
         dead_link_count = 0
         images = []
-        metadata_filter = {"url": {"$ne": "404"}} 
+        metadata_filter = {"dead-link": {"$ne": True}} 
 
         query_start_time = time.time()
         result = index.query(
@@ -84,35 +82,33 @@ def pinecone_query(embedding):
             url = match["metadata"]["url"]
             if not validate_url(url):
                 print(f'\nRemoving dead link: {url}')
+                print(match["id"])
                 dead_link_count += 1
-                new_metadata = {"url": str(url_code)}
-                index.update(id=match["id"], set_metadata = new_metadata)
+                index.update(id=match["id"], set_metadata = {"dead-link": True})
 
         if dead_link_count == 0:
             dead_links = False
 
-        for m in result.matches:
-            images.append({
-                    "caption": m.metadata["caption"],
-                    "url": m.metadata["url"],
-                    "score": m.score
-                })
+    for m in result.matches:
+        images.append({
+            "caption": m.metadata["caption"],
+            "url": m.metadata["url"],
+            "score": m.score
+        })
 
     return images, query_response_time
 
 def validate_url(url):
-    if get_url_status(url) == 200: 
-        return True
-    else:
-        return False
-    
-def get_url_status(url):
     try:
-        return str(requests.get(url, stream=True).status_code)
+        code = requests.get(url, stream=True).status_code
+        if code == 200: 
+            return True
+        else:
+            return False
     except requests.exceptions.RequestException as e:
         print(f"\nCannot Reach:\n{url}.\nError: {e}\n")
-        return "Couldn't reach url"
-
+        return False
+    
 @app.get("/images")
 async def image_similarity_search():
     image_embedding = get_embedding()
