@@ -82,8 +82,7 @@ def pinecone_query(embedding):
 
         for match in result.matches:
             url = match["metadata"]["url"]
-            url_code = get_url_status(url)
-            if url_code != 200:
+            if not validate_url(url):
                 print(f'\nRemoving dead link: {url}')
                 dead_link_count += 1
                 new_metadata = {"url": str(url_code)}
@@ -101,16 +100,18 @@ def pinecone_query(embedding):
 
     return images, query_response_time
 
+def validate_url(url):
+    if get_url_status(url) == 200: 
+        return True
+    else:
+        return False
+    
 def get_url_status(url):
     try:
-        code = requests.get(url, stream=True).status_code
-        if code in [400, 401, 403, 404, 410, 500, 502, 503, 504]: #Error codes preventing image loading
-            return 404
-        else:
-            return code
+        return str(requests.get(url, stream=True).status_code)
     except requests.exceptions.RequestException as e:
         print(f"\nCannot Reach:\n{url}.\nError: {e}\n")
-        return 404
+        return "Couldn't reach url"
 
 @app.get("/images")
 async def image_similarity_search():
