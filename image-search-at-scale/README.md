@@ -41,5 +41,6 @@ by doing a search on http://images.google.com and saving the image to the ```./s
 
 1. Show the FastAPI Console Output. The terminal output for the FastAPI application includes the following execution times: ```Get image embedding execution time in ms``` and ```Pinecone query execution time in ms```
 
-**IMPORTANT** - Subsequent pinecone query times should drop after the initial request. 
-But, this is a very large dataset. Expect queries to range from a 300ms to 5000ms.  
+**IMPORTANT** 
+- Subsequent pinecone query times should drop after the initial request. But, this is a very large dataset. Expect queries to range from a 300ms to 5000ms.  
+- If a query returns image urls that are no longer valid, a metadata field 'dead-links' will be added to the relevant vector and set to True. These results will be filtered out in future queries. 
