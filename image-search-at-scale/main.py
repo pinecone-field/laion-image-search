@@ -82,7 +82,6 @@ def pinecone_query(embedding):
             url = match["metadata"]["url"]
             if not validate_url(url):
                 print(f'\nRemoving dead link: {url}')
-                print(match["id"])
                 dead_link_count += 1
                 index.update(id=match["id"], set_metadata = {"dead-link": True})
 
@@ -100,8 +99,8 @@ def pinecone_query(embedding):
 
 def validate_url(url):
     try:
-        code = requests.get(url, stream=True).status_code
-        if code == 200: 
+        response = requests.get(url, stream=True, timeout=5)
+        if response.status_code != 404 and "image" in response.headers.get("Content-Type"): 
             return True
         else:
             return False
