@@ -6,11 +6,6 @@ import OriginalImage from './assets/image.jpeg'
 
 
 function App() {
-  const [searchMode, setSearchMode] = useState('text'); 
-
-  const handleModeChange = (e) => {
-    setSearchMode(e.target.value);
-  };
 
   return (
     <div className="App">
