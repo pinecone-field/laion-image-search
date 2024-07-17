@@ -2,6 +2,7 @@ import os
 import time
 import hashlib
 
+import shutil
 import torch
 import requests
 from dotenv import load_dotenv
@@ -29,7 +30,8 @@ app.add_middleware(
 load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
-IMAGE_PATH = "./static/image.jpeg"
+BACKEND_IMAGE_PATH = "./static/image.jpeg"
+FRONTEND_IAMGE_PATH = "./React/search-app/src/assets/image.jpeg"
 MODEL = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 PROCESSOR = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
@@ -46,7 +48,7 @@ def get_image_embedding():
     start_time = time.time()
 
     # Get the hash of the new image
-    new_image_hash = get_image_hash(IMAGE_PATH)
+    new_image_hash = get_image_hash(BACKEND_IMAGE_PATH)
 
     # If the hash of the new image is the same as the hash of the cached image,
     # the image has not changed
@@ -57,7 +59,7 @@ def get_image_embedding():
     CACHED_IMAGE_HASH = new_image_hash
     # If the hash of the new image is the same as the hash of the cached image,
     print("Computing the image embedding")
-    image = Image.open(IMAGE_PATH)
+    image = Image.open(BACKEND_IMAGE_PATH)
 
     # Preprocess the image and return PyTorch tensor
     inputs = PROCESSOR(images=image, return_tensors="pt")
@@ -123,6 +125,7 @@ def validate_url(url):
     
 @app.get("/images")
 async def image_similarity_search():
+    shutil.copy(BACKEND_IMAGE_PATH, FRONTEND_IAMGE_PATH)
     image_embedding = get_image_embedding()
     images = pinecone_query(image_embedding)
 
