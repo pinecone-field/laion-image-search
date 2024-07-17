@@ -13,9 +13,8 @@ PINECONE_INDEX_NAME=laion-400m
 PINECONE_API_KEY=[YOUR_PINECONE_API_KEY]
 ```
 
-### Step 2 - Install dependencies
-
-Setup virtual environment and install the required python packages.
+### Step 2 - Set up & Run FastAPI server
+Setup virtual environment and install the required python packages:
 
 ```
 cd ./image-search-at-scale
@@ -24,34 +23,23 @@ poetry install
 poetry shell
 ```
 
-
-Start a separate terminal and run the following command to install required dependencies for the React web-app:
-
-
-```
-cd ./image-search-at-scale/search-app
-npm install
-```
-
-## Step 3 - Run FastAPI
-Start demo API by running the following command.
-
+Then start the demo API by running the following command:
 
 ```
 uvicorn main:app --reload
 ```
 
+## Step 3 - Run web-app
 
-## Step 4 - Run web-app
-In the terminal that you ran npm install in, run the following command to start the web-app:
-
+Start a separate terminal and run the following command to launch the web-app:
 
 ```
-npm run
+cd ./image-search-at-scale/search-app
+npm install
+npm start
 ```
-The app should launch in your preferred browser
 
-
+The web-app should launch in your preferred browser.
 
 ## Other notes
 1. [OPTIONAL] Open a browser for this url: http://localhost:8000/docs. You can test the backend API call here and talk about how any user interface could be built on top of this endpoint.
