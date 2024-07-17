@@ -2,7 +2,7 @@
 This demo re-uses Chris Amata's excellent image search demo.
 
 
-![Demo](./static/image-search-at-scale.png)
+![Demo](./image-search-at-scale.png)
 
 ### Step 1 - Set environment variables
 Create a file named ```.env``` in the "image-search-at-scale' folder that has the following variables:
@@ -45,7 +45,7 @@ The web-app should launch in your preferred browser.
 1. [OPTIONAL] Open a browser for this url: http://localhost:8000/docs. You can test the backend API call here and talk about how any user interface could be built on top of this endpoint.
 
 
-2. You can swap the image out by doing a search on http://images.google.com and saving the image to the ```./static/image.jpeg``` file.
+2. You can swap the image out by doing a search on http://images.google.com and saving the image to the ```./search-app/src/assets/image.jpeg``` file.
 
 
 3. Refresh http://localhost:3000/ and similarity search will re-run against the new image.
