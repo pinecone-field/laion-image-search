@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react'
 import './App.css'
 import ImageFetch from './ImageFetch';
 import PineconeLogo from './assets/pinecone-logo-black.png'
-import OriginalImage from './assets/image.jpeg'
 import Dropzone from './components/Dropzone';
 
 
@@ -25,10 +24,6 @@ function App() {
         </div>
       </header>
         <div className="search-container">
-          <div className="original-photo">
-            <h2 className="original-photo-title">Original Photo</h2>
-            <img src={OriginalImage} alt="Original Photo" className="original-photo-image" />
-          </div>
           <Dropzone onUploadSuccess={handleUploadSuccess} />
         </div>
       <ImageFetch uploadedImages={uploadedImages}/>

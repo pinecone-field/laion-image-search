@@ -1,7 +1,8 @@
-// Dropzone.js
 import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
+import OriginalImage from '../assets/image.jpeg'
+import './Dropzone.css'
 
 const Dropzone = ({ onUploadSuccess }) => {
   const onDrop = useCallback((acceptedFiles) => {
@@ -26,8 +27,8 @@ const Dropzone = ({ onUploadSuccess }) => {
 
   return (
     <div {...getRootProps()} className="drag-drop-box">
+      <img src={OriginalImage} alt="Original Photo" className="original-photo-image" />
       <input {...getInputProps()} />
-      <p>Drag and drop an image here</p>
     </div>
   );
 };
