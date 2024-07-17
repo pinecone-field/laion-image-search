@@ -128,5 +128,3 @@ async def image_similarity_search():
     images = pinecone_query(image_embedding)
 
     return [image for image in images]
-
-app.mount("/", StaticFiles(directory="static"), name="static")
