@@ -1,7 +1,6 @@
 # Image Search at Scale
 This demo re-uses Chris Amata's excellent image search demo.
 
-
 ![Demo](./image-search-at-scale.png)
 
 ### Step 1 - Set environment variables
