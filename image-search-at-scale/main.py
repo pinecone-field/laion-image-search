@@ -108,7 +108,7 @@ def pinecone_query(embedding):
             "url": m.metadata["url"],
             "score": m.score
         })
-    return images, query_response_time
+    return images
 
 def validate_url(url):
     try:
