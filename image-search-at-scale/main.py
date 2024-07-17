@@ -64,6 +64,7 @@ def pinecone_query(embedding):
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
     top_k = 15
+    prev_iamges = []
 
     dead_links = True
     while dead_links:
@@ -92,12 +93,11 @@ def pinecone_query(embedding):
 
         for i in range(len(urls[0])):
             if not urls[1][i]:
-                print("Removing vector: ", urls[0][i])
                 exclude_ids.append(urls[0][i])
         
         thread_updates(index, exclude_ids)
 
-        if top_k-len(exclude_ids) >= 10:
+        if top_k-len(exclude_ids) >= 10 or prev_iamges == images:
             dead_links = False
 
         for m in result.matches:
@@ -109,6 +109,7 @@ def pinecone_query(embedding):
                     "url": m.metadata["url"],
                     "score": m.score
                 })
+        prev_iamges = images
     return images, query_response_time
 
 def thread_updates(index, ids):
@@ -142,6 +143,10 @@ def validate_url(url):
     except requests.exceptions.RequestException as e:
         print(f"Cannot Reach:\n{url}.\nError: {e}")
         return False
+    except TypeError:
+        print("Image has no Content-Type header")
+        return False
+
     
 @app.get("/images")
 async def image_similarity_search():
