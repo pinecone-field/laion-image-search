@@ -12,7 +12,6 @@ from PIL import Image
 from pinecone import Pinecone
 from transformers import CLIPProcessor, CLIPModel
 
-
 app = FastAPI()
 
 origins = ["http://localhost:3000",
@@ -74,27 +73,54 @@ def get_image_embedding():
     return CACHED_EMBEDDING
 
 def pinecone_query(embedding):
-    start_time = time.time()
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
-    images = []
-    result = index.query(
-        vector=embedding,
-        top_k=10,
-        include_metadata=True
-    )
-    
+
+    dead_links = True
+    while dead_links:
+        dead_link_count = 0
+        images = []
+        metadata_filter = {"dead-link": {"$ne": True}} 
+
+        query_start_time = time.time()
+        result = index.query(
+            vector=embedding,
+            top_k=10,
+            include_metadata=True,
+            filter=metadata_filter 
+        )
+        query_response_time = round((time.time() - query_start_time) * 1000, 0)
+        print(f"Pinecone query execution time: {query_response_time} ms")
+
+        for match in result.matches:
+            url = match["metadata"]["url"]
+            if not validate_url(url):
+                print(f'\nRemoving dead link: {url}')
+                dead_link_count += 1
+                index.update(id=match["id"], set_metadata = {"dead-link": True})
+
+        if dead_link_count == 0:
+            dead_links = False
+
     for m in result.matches:
         images.append({
-                "caption": m.metadata["caption"],
-                "url": m.metadata["url"],
-                "score": m.score
-            })
-    query_response_time = round((time.time() - start_time) * 1000, 0)
-    print(f"Pinecone query execution time: {query_response_time} ms")
+            "caption": m.metadata["caption"],
+            "url": m.metadata["url"],
+            "score": m.score
+        })
+    return images, query_response_time
 
-    return images
-
+def validate_url(url):
+    try:
+        response = requests.get(url, stream=True, timeout=5)
+        if response.status_code != 404 and "image" in response.headers.get("Content-Type"): 
+            return True
+        else:
+            return False
+    except requests.exceptions.RequestException as e:
+        print(f"Cannot Reach:\n{url}.\nError: {e}")
+        return False
+    
 @app.get("/images")
 async def image_similarity_search():
     image_embedding = get_image_embedding()
