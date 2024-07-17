@@ -72,7 +72,7 @@ body {
 .search-bar {
   display: flex;
   align-items: center;
-  margin-right: 20px; /* Add margin to push the photo to the right */
+  margin-right: 20px; 
 }
 
 .search-input {
@@ -110,11 +110,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 20px; /* Add margin to push the photo to the right */
+  margin-right: 20px;
 }
 
 .original-photo {
-  text-align: center; /* Center align the original photo */
+  text-align: center;
 }
 
 .original-photo-title {
@@ -127,6 +127,6 @@ body {
   width: 100%;
   height: auto;
   max-width: 300px;
-  display: inline-block; /* Display the image as inline-block */
-  margin-left: 20px; /* Adjust margin to push photo slightly right */
+  display: inline-block;
+  margin-left: 20px;
 }
