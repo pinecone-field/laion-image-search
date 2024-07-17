@@ -29,7 +29,7 @@ Start a separate terminal and run the following command to install required depe
 
 
 ```
-cd ./image-search-at-scale/React/search-app
+cd ./image-search-at-scale/search-app
 npm install
 ```
 
