@@ -63,18 +63,19 @@ def get_embedding():
 def pinecone_query(embedding):
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
+    top_k = 15
 
     dead_links = True
     while dead_links:
-        dead_link_count = 0
         images = []
         urls = [[], []]
+        exclude_ids = []
         metadata_filter = {"dead-link": {"$ne": True}} 
 
         query_start_time = time.time()
         result = index.query(
             vector=embedding,
-            top_k=10,
+            top_k=top_k,
             include_metadata=True,
             filter=metadata_filter 
         )
@@ -92,18 +93,21 @@ def pinecone_query(embedding):
         for i in range(len(urls[0])):
             if not urls[1][i]:
                 print("Removing vector: ", urls[0][i])
-                dead_link_count += 1
+                exclude_ids.append(urls[0][i])
                 index.update(id=urls[0][i], set_metadata = {"dead-link": True})
 
-        if dead_link_count == 0:
+        if top_k-len(exclude_ids) > 10:
             dead_links = False
 
-    for m in result.matches:
-        images.append({
-            "caption": m.metadata["caption"],
-            "url": m.metadata["url"],
-            "score": m.score
-        })
+        for m in result.matches:
+            if len(images) >= 10:
+                break
+            if m["id"] not in exclude_ids:
+                images.append({
+                    "caption": m.metadata["caption"],
+                    "url": m.metadata["url"],
+                    "score": m.score
+                })
     return images, query_response_time
 
 def thread_validation(urls):
