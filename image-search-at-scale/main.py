@@ -22,6 +22,7 @@ PROCESSOR = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
 CACHED_IMAGE_HASH = None
 CACHED_EMBEDDING = None
+
 def get_image_hash(image_path):
     with open(image_path, 'rb') as f:
         return hashlib.md5(f.read()).hexdigest()
