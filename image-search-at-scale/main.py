@@ -94,9 +94,10 @@ def pinecone_query(embedding):
             if not urls[1][i]:
                 print("Removing vector: ", urls[0][i])
                 exclude_ids.append(urls[0][i])
-                index.update(id=urls[0][i], set_metadata = {"dead-link": True})
+        
+        thread_updates(index, exclude_ids)
 
-        if top_k-len(exclude_ids) > 10:
+        if top_k-len(exclude_ids) >= 10:
             dead_links = False
 
         for m in result.matches:
@@ -109,6 +110,19 @@ def pinecone_query(embedding):
                     "score": m.score
                 })
     return images, query_response_time
+
+def thread_updates(index, ids):
+    update_time = time.time()
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        [executor.submit(update_id, index, id) for id in ids]
+    print(f"Update time:\t{(time.time() - update_time) * 1000}ms")
+
+def update_id(index, id):
+    try:
+        index.update(id=id, set_metadata = {"dead-link": True})
+        print(f"Updated index:\t{id}")
+    except:
+        print(f"Couldnt update index:\t{id}")
 
 def thread_validation(urls):
     with concurrent.futures.ThreadPoolExecutor() as executor:
