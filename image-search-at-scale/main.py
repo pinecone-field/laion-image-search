@@ -31,7 +31,7 @@ load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
 BACKEND_IMAGE_PATH = "./static/image.jpeg"
-FRONTEND_IAMGE_PATH = "./React/search-app/src/assets/image.jpeg"
+FRONTEND_IAMGE_PATH = "./search-app/src/assets/image.jpeg"
 MODEL = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 PROCESSOR = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
