@@ -112,10 +112,13 @@ def pinecone_query(embedding):
     return images, query_response_time
 
 def thread_updates(index, ids):
-    update_time = time.time()
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        [executor.submit(update_id, index, id) for id in ids]
-    print(f"Update time:\t{(time.time() - update_time) * 1000}ms")
+    if len(ids) > 0:
+        update_time = time.time()
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            [executor.submit(update_id, index, id) for id in ids]
+        print(f"Update time:\t{(time.time() - update_time) * 1000}ms")
+    else:
+        print("No updates needed")
 
 def update_id(index, id):
     try:
