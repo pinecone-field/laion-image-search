@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import './ImageFetch.css';
+import configData from './config.json'
 
 const ImageFetch = () => {
   const [images, setImages] = useState([]);
   const [error, setError] = useState(null);
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const SERVER_URL = configData.SERVER_URL
 
   useEffect(() => {
-    fetch('http://localhost:8000/images')
+    fetch(SERVER_URL)
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
