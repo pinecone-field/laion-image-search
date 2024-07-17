@@ -7,19 +7,11 @@ import Dropzone from './components/Dropzone';
 
 
 function App() {
-  const [files, setFiles] = useState([]);
+  const [uploadedImages, setUploadedImages] = useState([]);
 
-  const handleDrop = (acceptedFiles) => {
-    setFiles(acceptedFiles.map((file) => Object.assign(file, {
-      preview: URL.createObjectURL(file)
-    })));
-  }
-
-  useEffect(() => {
-    return () => {
-      files.forEach((file) => URL.revokeObjectURL(file.preview))
-    };
-  }, [files]);
+  const handleUploadSuccess = (images) => {
+    setUploadedImages(images);
+  };
 
   return (
     <div className="App">
@@ -37,9 +29,9 @@ function App() {
             <h2 className="original-photo-title">Original Photo</h2>
             <img src={OriginalImage} alt="Original Photo" className="original-photo-image" />
           </div>
-          <Dropzone onDrop={handleDrop} />
+          <Dropzone onUploadSuccess={handleUploadSuccess} />
         </div>
-      <ImageFetch />
+      <ImageFetch uploadedImages={uploadedImages}/>
     </div>
   );
 }
