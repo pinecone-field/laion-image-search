@@ -2,6 +2,7 @@ name: Lint
 
 permissions:
    checks: write
+   pull-requests: read
 
 on: push
 
