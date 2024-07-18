@@ -1,18 +1,18 @@
+import hashlib
+import os
+import shutil
+import time
+
 from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
-import hashlib
-import os
-import time
 
 import requests
-import shutil
 import torch
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from pinecone import Pinecone
 
 app = FastAPI()
@@ -129,7 +129,7 @@ async def image_similarity_search():
     image_embedding = get_image_embedding()
     images = pinecone_query(image_embedding)
 
-    return [image for image in images]
+    return list(images)
 
 @app.post("/upload")
 async def upload_file(file:UploadFile = File(...)):
