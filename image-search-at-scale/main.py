@@ -3,21 +3,35 @@ import hashlib
 import os
 import time
 
-from PIL import Image
-from dotenv import load_dotenv
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
+
 import requests
 import torch
-from transformers import CLIPModel, CLIPProcessor
+
+from dotenv import load_dotenv
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from PIL import Image
 from pinecone import Pinecone
+from transformers import CLIPProcessor, CLIPModel
 
 app = FastAPI()
+
+origins = ["http://localhost:3000",
+           "localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
-IMAGE_PATH = "./static/image.jpeg"
+IMAGE_PATH = "./search-app/src/assets/image.jpeg"
 MODEL = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 PROCESSOR = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
@@ -28,7 +42,7 @@ def get_image_hash(image_path):
     with open(image_path, 'rb') as f:
         return hashlib.md5(f.read()).hexdigest()
 
-def get_embedding():
+def get_image_embedding():
     global CACHED_IMAGE_HASH
     global CACHED_EMBEDDING
     start_time = time.time()
@@ -41,7 +55,7 @@ def get_embedding():
     if new_image_hash == CACHED_IMAGE_HASH:
         print("Image has not changed. Using cached image embedding.")
         return CACHED_EMBEDDING
-    
+
     CACHED_IMAGE_HASH = new_image_hash
     # If the hash of the new image is the same as the hash of the cached image,
     print("Computing the image embedding")
@@ -55,7 +69,7 @@ def get_embedding():
 
     # Convert the image embedding from a numpy array to a list
     CACHED_EMBEDDING = image_embeddings.cpu().numpy().tolist()
-    
+
     end_time = time.time()
     print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
     return CACHED_EMBEDDING
@@ -77,7 +91,7 @@ def pinecone_query(embedding):
             vector=embedding,
             top_k=top_k,
             include_metadata=True,
-            filter=metadata_filter 
+            filter=metadata_filter
         )
         query_response_time = calculate_time(query_start_time)
         print(f"Pinecone query execution time: {query_response_time} ms")
@@ -108,6 +122,7 @@ def pinecone_query(embedding):
             })
         prev_iamges = images
     return images, query_response_time
+
 
 def thread_updates(index, ids):
     if len(ids) > 0:
@@ -148,12 +163,8 @@ def validate_url(url):
 def calculate_time(start_time):
     return (time.time() - start_time) * 1000
 
-    
 @app.get("/images")
 async def image_similarity_search():
-    image_embedding = get_embedding()
-    images, query_response_time = pinecone_query(image_embedding)
-
-    return {"images": images, "query_response_time": query_response_time}
-
-app.mount("/", StaticFiles(directory="static"), name="static")
+    image_embedding = get_image_embedding()
+    images = pinecone_query(image_embedding)
+    return list(images)
