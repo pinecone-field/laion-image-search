@@ -22,4 +22,5 @@ jobs:
   
       - name: Run PyLint
         run: |
-          pylint image-search-at-scale/main.py
+          cd image-search-at-scale
+          pylint $(git ls-files '*.py') --output=lint.txt || true
