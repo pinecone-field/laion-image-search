@@ -121,7 +121,7 @@ def pinecone_query(embedding):
                     "score": m.score
             })
         prev_iamges = images
-    return images, query_response_time
+    return images
 
 
 def thread_updates(index, ids):
