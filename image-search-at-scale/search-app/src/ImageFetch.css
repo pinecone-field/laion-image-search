@@ -1,0 +1,67 @@
+.image-grid-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 20px;
+  justify-items: center;
+}
+
+.image-item {
+  position: relative;
+  text-align: center; 
+  flex-direction: column;
+  align-items: center;
+}
+
+.image {
+  max-width: 100%;
+  max-height: 250px;
+  width: auto;
+  height: auto;
+  display: block;
+  transition: transform 0.3s ease; 
+  object-fit: cover;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: aliceblue; 
+}
+
+.similarity-score {
+  font-size: 18px; 
+  font-weight: bold; 
+  margin-bottom: 10px; 
+}
+
+.image-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease, height 0.3s ease; 
+}
+
+.image-item:hover .image-footer {
+  height: auto;
+  opacity: 1;
+}
+
+.image-title {
+  font-weight: bold;
+  margin: 0;
+  white-space: normal;
+  text-align: center;
+}
+
