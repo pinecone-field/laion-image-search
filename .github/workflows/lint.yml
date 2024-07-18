@@ -3,7 +3,7 @@ name: Lint
 permissions:
    checks: write
 
-on: [push, pull_request]
+on: push
 
 jobs:
   run-linters:
