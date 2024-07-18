@@ -69,8 +69,7 @@ def pinecone_query(embedding):
     dead_links = True
     while dead_links:
         images = []
-        urls = [[], []]
-        exclude_ids = []
+        results = []
         metadata_filter = {"dead-link": {"$ne": True}} 
 
         query_start_time = time.time()
@@ -80,44 +79,40 @@ def pinecone_query(embedding):
             include_metadata=True,
             filter=metadata_filter 
         )
-        query_response_time = round((time.time() - query_start_time) * 1000, 0)
+        query_response_time = calculate_time(query_start_time)
         print(f"Pinecone query execution time: {query_response_time} ms")
 
-        for match in result.matches:
-            urls[0].append(match["id"])
-            urls[1].append(match["metadata"]["url"])
+        for m in result.matches:
+            results.append({"id": m["id"], "url": m["metadata"]["url"], "dead-link": False})
         
-        validation_time = time.time()
-        urls[1] = thread_validation(urls[1])
-        print(f"Total url validation time:\t{(time.time()-validation_time)*1000}ms")
+        validation_start_time = time.time()
+        results = thread_validation(results)
+        validation_time = calculate_time(validation_start_time)
+        print(f"Url validation time:\t{validation_time}ms")
 
-        for i in range(len(urls[0])):
-            if not urls[1][i]:
-                exclude_ids.append(urls[0][i])
-        
-        thread_updates(index, exclude_ids)
+        invalid_results = [image for image in results if image["dead-link"]]
+        thread_updates(index, [id["id"] for id in invalid_results])
 
-        if top_k-len(exclude_ids) >= 10 or prev_iamges == images:
+        #Some queries will not return 10 images, this check prevents endless loop
+        if top_k - len(invalid_results) >= 10 or prev_iamges == images:
             dead_links = False
 
         for m in result.matches:
             if len(images) >= 10:
                 break
-            if m["id"] not in exclude_ids:
+            if m["id"] not in [image["id"] for image in invalid_results]:
                 images.append({
                     "caption": m.metadata["caption"],
                     "url": m.metadata["url"],
                     "score": m.score
-                })
+            })
         prev_iamges = images
     return images, query_response_time
 
 def thread_updates(index, ids):
     if len(ids) > 0:
-        update_time = time.time()
         with concurrent.futures.ThreadPoolExecutor() as executor:
             [executor.submit(update_id, index, id) for id in ids]
-        print(f"Update time:\t{(time.time() - update_time) * 1000}ms")
     else:
         print("No updates needed")
 
@@ -128,24 +123,30 @@ def update_id(index, id):
     except:
         print(f"Couldnt update index:\t{id}")
 
-def thread_validation(urls):
+def thread_validation(results):
+    urls = [url["url"] for url in results]
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        results = list(executor.map(validate_url, urls))
+        bools = list(executor.map(validate_url, urls))
+    for i in range(len(bools)):
+        results[i]["dead-link"] = bools[i]
     return results
 
 def validate_url(url):
     try:
-        response = requests.get(url, stream=True, timeout=4)
+        response = requests.get(url, stream=True, timeout=5)
         if response.status_code != 404 and "image" in response.headers.get("Content-Type"): 
-            return True
-        else:
             return False
+        else:
+            return True
     except requests.exceptions.RequestException as e:
         print(f"Cannot Reach:\n{url}.\nError: {e}")
-        return False
+        return True
     except TypeError:
         print("Image has no Content-Type header")
-        return False
+        return True
+    
+def calculate_time(start_time):
+    return (time.time() - start_time) * 1000
 
     
 @app.get("/images")
