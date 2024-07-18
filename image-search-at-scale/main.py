@@ -126,9 +126,9 @@ def update_id(index, id):
 def thread_validation(results):
     urls = [url["url"] for url in results]
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        bools = list(executor.map(validate_url, urls))
-    for i, bool_value in enumerate(bools):
-        results[i]["dead-link"] = bool_value
+        dead_links = list(executor.map(validate_url, urls))
+    for i, dead_link in enumerate(dead_links):
+        results[i]["dead-link"] = dead_link
     return results
 
 def validate_url(url):
