@@ -18,6 +18,10 @@
   align-items: center;
 }
 
+.image-item:hover {
+  cursor: pointer;
+}
+
 .image {
   max-width: 100%;
   max-height: 250px;
@@ -56,6 +60,7 @@
 .image-item:hover .image-footer {
   height: auto;
   opacity: 1;
+  cursor: pointer;
 }
 
 .image-title {

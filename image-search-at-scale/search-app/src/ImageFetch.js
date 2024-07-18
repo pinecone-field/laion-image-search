@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './ImageFetch.css';
 import configData from './config.json'
 
@@ -35,6 +36,26 @@ const ImageFetch = () => {
     setHoveredIndex(null);
   };
 
+  const handleMouseClick = async (url) => {
+    try {
+      const response = await fetch('http://localhost:8000/download-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 'image_url': url })
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      console.log('Response from backend:', data);
+    } catch (error) {
+      console.error('There was a problem with the fetch operation')
+    }
+  }
+
   if (error) {
     return <div>Error: {error.message}</div>;
   }
@@ -57,6 +78,7 @@ const ImageFetch = () => {
                 src={image.url}
                 alt={`Image ${index}`}
                 className="image"
+                onClick={() => handleMouseClick(image.url)}
               />
               <div className="image-footer">
                 <p className="image-title" style={{ opacity: hoveredIndex === index ? 1 : 0 }}>
