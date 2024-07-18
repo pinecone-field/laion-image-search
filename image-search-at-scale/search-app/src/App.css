@@ -62,13 +62,6 @@ body {
   display: none;
 }
 
-.search-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 20px;
-}
-
 .search-bar {
   display: flex;
   align-items: center;

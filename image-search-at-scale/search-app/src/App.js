@@ -23,9 +23,7 @@ function App() {
           <h1 className="header-title">Image Search Demo</h1>
         </div>
       </header>
-        <div className="search-container">
-          <Dropzone onUploadSuccess={handleUploadSuccess} />
-        </div>
+      <Dropzone onUploadSuccess={handleUploadSuccess} />
       <ImageFetch uploadedImages={uploadedImages}/>
     </div>
   );
