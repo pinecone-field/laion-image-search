@@ -1,13 +1,13 @@
+import hashlib
 import os
 import time
-import hashlib
 
-import shutil
-import torch
+
 import requests
+import torch
+
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 from pinecone import Pinecone
@@ -54,7 +54,7 @@ def get_image_embedding():
     if new_image_hash == CACHED_IMAGE_HASH:
         print("Image has not changed. Using cached image embedding.")
         return CACHED_EMBEDDING
-    
+
     CACHED_IMAGE_HASH = new_image_hash
     # If the hash of the new image is the same as the hash of the cached image,
     print("Computing the image embedding")
@@ -68,7 +68,7 @@ def get_image_embedding():
 
     # Convert the image embedding from a numpy array to a list
     CACHED_EMBEDDING = image_embeddings.cpu().numpy().tolist()
-    
+
     end_time = time.time()
     print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
     return CACHED_EMBEDDING
@@ -81,14 +81,14 @@ def pinecone_query(embedding):
     while dead_links:
         dead_link_count = 0
         images = []
-        metadata_filter = {"dead-link": {"$ne": True}} 
+        metadata_filter = {"dead-link": {"$ne": True}}
 
         query_start_time = time.time()
         result = index.query(
             vector=embedding,
             top_k=10,
             include_metadata=True,
-            filter=metadata_filter 
+            filter=metadata_filter
         )
         query_response_time = round((time.time() - query_start_time) * 1000, 0)
         print(f"Pinecone query execution time: {query_response_time} ms")
@@ -114,7 +114,7 @@ def pinecone_query(embedding):
 def validate_url(url):
     try:
         response = requests.get(url, stream=True, timeout=5)
-        if response.status_code != 404 and "image" in response.headers.get("Content-Type"): 
+        if response.status_code != 404 and "image" in response.headers.get("Content-Type"):
             return True
         else:
             return False
@@ -126,5 +126,4 @@ def validate_url(url):
 async def image_similarity_search():
     image_embedding = get_image_embedding()
     images = pinecone_query(image_embedding)
-
-    return [image for image in images]
+    return list(images)
