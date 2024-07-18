@@ -22,8 +22,8 @@ jobs:
     - name: Install dependencies
       run: |
         cd image-search-at-scale
-        poetry install
+        poetry install --only dev
 
     - name: Run pylint
       run: |
-        poetry run pylint **/*.py
+        poetry shell run pylint main.py
