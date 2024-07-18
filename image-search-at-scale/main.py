@@ -112,7 +112,7 @@ def pinecone_query(embedding):
 def thread_updates(index, ids):
     if len(ids) > 0:
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            [executor.submit(update_id, index, id) for id in ids]
+            future = [executor.submit(update_id, index, id) for id in ids]
     else:
         print("No updates needed")
 
@@ -127,8 +127,8 @@ def thread_validation(results):
     urls = [url["url"] for url in results]
     with concurrent.futures.ThreadPoolExecutor() as executor:
         bools = list(executor.map(validate_url, urls))
-    for i in range(len(bools)):
-        results[i]["dead-link"] = bools[i]
+    for i, bool_value in enumerate(bools):
+        results[i]["dead-link"] = bool_value
     return results
 
 def validate_url(url):
