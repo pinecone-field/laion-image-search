@@ -13,7 +13,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.10'
+          python-version: '3.10'  # Specify the Python version you need
   
       - name: Install dependencies
         run: |
@@ -22,5 +22,4 @@ jobs:
   
       - name: Run PyLint
         run: |
-          cd image-search-at-scale
-          pylint $(git ls-files '*.py') --output=lint.txt || true
+          pylint image-search-at-scale/main.py --threshold 2.5
