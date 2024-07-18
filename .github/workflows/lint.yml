@@ -27,5 +27,4 @@ jobs:
     - name: Run pylint
       run: |
         cd image-search-at-scale
-        poetry shell 
-        run pylint main.py
+        poetry run pylint main.py
