@@ -116,7 +116,10 @@ def validate_results(query_results):
 def update_dead_links(index, invalid_results):
     if len(invalid_results) > 0:
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            [executor.submit(mark_vectorid_as_dead, index, result["id"]) for result in invalid_results]
+            [
+                executor.submit(mark_vectorid_as_dead, index, result["id"])
+                for result in invalid_results
+            ]
     else:
         print("No updates needed")
 
