@@ -57,7 +57,6 @@ def get_image_embedding():
         return CACHED_EMBEDDING
 
     CACHED_IMAGE_HASH = new_image_hash
-    # If the hash of the new image is the same as the hash of the cached image,
     print("Computing the image embedding")
     image = Image.open(IMAGE_PATH)
 
@@ -78,12 +77,12 @@ def pinecone_query(embedding):
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
     top_k = 15
-    prev_iamges = []
+    prev_images = []
 
     dead_links = True
     while dead_links:
-        images = []
-        results = []
+        valid_images = []
+        query_results = []
         metadata_filter = {"dead-link": {"$ne": True}} 
 
         query_start_time = time.time()
@@ -93,45 +92,45 @@ def pinecone_query(embedding):
             include_metadata=True,
             filter=metadata_filter
         )
-        query_response_time = calculate_time(query_start_time)
+        query_response_time = calculate_duration(query_start_time)
         print(f"Pinecone query execution time: {query_response_time} ms")
 
         for m in result.matches:
-            results.append({"id": m["id"], "url": m["metadata"]["url"], "dead-link": False})
+            query_results.append({"id": m["id"], "url": m["metadata"]["url"], "dead-link": False})
         
         validation_start_time = time.time()
-        results = thread_validation(results)
-        validation_time = calculate_time(validation_start_time)
+        query_results = thread_validation(query_results)
+        validation_time = calculate_duration(validation_start_time)
         print(f"Url validation time:\t{validation_time}ms")
 
-        invalid_results = [image for image in results if image["dead-link"]]
+        invalid_results = [image for image in query_results if image["dead-link"]]
         thread_updates(index, [id["id"] for id in invalid_results])
 
-        #Some queries will not return 10 images, this check prevents endless loop
-        if top_k - len(invalid_results) >= 10 or prev_iamges == images:
-            dead_links = False
-
         for m in result.matches:
-            if len(images) >= 10:
+            if len(valid_images) >= 10:
                 break
             if m["id"] not in [image["id"] for image in invalid_results]:
-                images.append({
+                valid_images.append({
                     "caption": m.metadata["caption"],
                     "url": m.metadata["url"],
                     "score": m.score
             })
-        prev_iamges = images
-    return images
+                
+        #Some queries will not return 10 images, this check prevents endless loop
+        if len(valid_images) >= 10 or prev_images == valid_images:
+            dead_links = False
 
+        prev_images = valid_images
+    return valid_images
 
 def thread_updates(index, ids):
     if len(ids) > 0:
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = [executor.submit(update_id, index, id) for id in ids]
+            future = [executor.submit(mark_vectorid_as_dead, index, id) for id in ids]
     else:
         print("No updates needed")
 
-def update_id(index, id):
+def mark_vectorid_as_dead(index, id):
     try:
         index.update(id=id, set_metadata = {"dead-link": True})
         print(f"Updated index:\t{id}")
@@ -141,12 +140,12 @@ def update_id(index, id):
 def thread_validation(results):
     urls = [url["url"] for url in results]
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        dead_links = list(executor.map(validate_url, urls))
+        dead_links = list(executor.map(is_dead_link, urls))
     for i, dead_link in enumerate(dead_links):
         results[i]["dead-link"] = dead_link
     return results
 
-def validate_url(url):
+def is_dead_link(url):
     try:
         response = requests.get(url, stream=True, timeout=5)
         if response.status_code == 200 and "image" in response.headers.get("Content-Type"): 
@@ -160,7 +159,7 @@ def validate_url(url):
         print("Image has no Content-Type header")
         return True
     
-def calculate_time(start_time):
+def calculate_duration(start_time):
     return (time.time() - start_time) * 1000
 
 @app.get("/images")
