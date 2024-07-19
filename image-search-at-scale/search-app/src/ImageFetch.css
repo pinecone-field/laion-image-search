@@ -60,7 +60,6 @@
 .image-item:hover .image-footer {
   height: auto;
   opacity: 1;
-  cursor: pointer;
 }
 
 .image-title {
