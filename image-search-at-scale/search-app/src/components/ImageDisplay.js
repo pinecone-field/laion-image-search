@@ -30,7 +30,7 @@ const ImageDisplay = () => {
               Similarity Score: {image.score}
             </div>
             <img
-              src={image.url} // Adjust based on your data structure
+              src={image.url}
               alt={`Image ${index}`}
               className="image"
             />

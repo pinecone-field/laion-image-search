@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
-//import './ImageFetch.css'; // Import the CSS file
 import { ImageContext } from './ImageContext';
 
 const ImageFetch = () => {
   const { setImages } = useContext(ImageContext);
   const [error, setError] = useState(null);
-  const [fetching, setFetching] = useState(false); // State to track fetching status
+  const [fetching, setFetching] = useState(false);
 
   const fetchImages = () => {
-    setFetching(true); // Set fetching to true to show loading indicator if needed
+    setFetching(true);
     fetch('http://localhost:8000/images')
       .then(response => {
         if (!response.ok) {
@@ -17,7 +16,7 @@ const ImageFetch = () => {
         return response.json();
       })
       .then(data => {
-        console.log('Fetched data:', data); // Log fetched data for debugging
+        console.log('Fetched data:', data);
         if (Array.isArray(data)) {
           setImages(data);
         } else {
@@ -25,16 +24,12 @@ const ImageFetch = () => {
         }
       })
       .catch(error => setError(error))
-      .finally(() => setFetching(false)); // Set fetching to false after fetching completes
+      .finally(() => setFetching(false));
   };
 
   useEffect(() => {
-    fetchImages(); // Fetch images on component mount
-  }, []); // Empty dependency array means this effect runs once when the component mounts
-
-  const handleButtonClick = () => {
-    fetchImages(); // Call fetchImages when button is clicked
-  };
+    fetchImages();
+  }, []);
 
   if (error) {
     return <div>Error: {error.message}</div>;

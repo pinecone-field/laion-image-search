@@ -19,44 +19,22 @@ function App() {
       files.forEach((file) => URL.revokeObjectURL(file.preview))
     };
   }, [files]);
-  const handleSearchChange = (e) => {
-    setSearchText(e.target.value);
-  };
-
-  const handleSearchSubmit = async () => {
-    try {
-      const response = await fetch( SERVER_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ searchText }),
-      });
-      if (response.ok) {
-        const results = await response.json();
-        setSearchResults(results);
-      } else {
-        alert('Failed to fetch search results.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred.');  // add useEffect?????
-    }
-  };
-
 
   return (
     <ImageProvider>
     <div className="App">
       <header className="App-header">
         <div className="header-content">
-          <img src={PineconeLogo} alt="Pinecone Logo" className="pinecone-logo" />
+         <a href="https://app.pinecone.io/organizations/-NF9xx-MFLRfp0AAuCon/projects/00e0f161-f169-4ba8-84d2-bbab9b875c27/indexes/laion-400m/browser"
+           target="_blank">
+             <img src={PineconeLogo} alt="Pinecone Logo" className="pinecone-logo" />
+         </a>
           <h1 className="header-title">Image Search Demo</h1>
         </div>
       </header>
         <div className="search-container">
             <div className="search-bar">
-            {/*Text search to be added here */}
+            {/*Text search to be added here */} 
             </div>
           <div className="original-photo">
             <h2 className="original-photo-title">Original Photo</h2>
