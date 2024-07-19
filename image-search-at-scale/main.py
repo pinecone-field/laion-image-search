@@ -75,6 +75,7 @@ def get_image_embedding():
     print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
     return CACHED_EMBEDDING
 
+
 def pinecone_query(embedding, index):
     top_k = 15
     metadata_filter = {"dead-link": {"$ne": True}}
@@ -89,9 +90,16 @@ def pinecone_query(embedding, index):
     query_results = []
     for m in result.matches:
         query_results.append(
-            {"id": m["id"], "url": m["metadata"]["url"], "dead-link": False, "score": m["score"], "caption": m["metadata"]["caption"]}
+            {
+                "id": m["id"],
+                "url": m["metadata"]["url"],
+                "dead-link": False,
+                "score": m["score"],
+                "caption": m["metadata"]["caption"],
+            }
         )
     return query_results
+
 
 def get_results(query_results):
     valid_results = []
@@ -104,6 +112,7 @@ def get_results(query_results):
     invalid_results = [image for image in query_results if image["dead-link"]]
 
     return valid_results, invalid_results
+
 
 def update_dead_links(index, ids):
     if len(ids) > 0:
@@ -157,7 +166,7 @@ async def image_similarity_search():
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
     prev_results = {}
-    
+
     dead_links = True
     while dead_links:
         image_embedding = get_image_embedding()
@@ -165,7 +174,7 @@ async def image_similarity_search():
         valid_results, invalid_results = get_results(query_results)
         update_dead_links(index, [id["id"] for id in invalid_results])
 
-         # Some queries will not return 10 images, this check prevents endless loop
+        # Some queries will not return 10 images, this check prevents endless loop
         if len(valid_results) >= 10 or prev_results == valid_results:
             dead_links = False
         else:
