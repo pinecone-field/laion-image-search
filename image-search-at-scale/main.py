@@ -39,20 +39,24 @@ PROCESSOR = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 CACHED_IMAGE_HASH = None
 CACHED_EMBEDDING = None
 CACHED_TEXT = None
-CACHED_TEXT_EMBEDDING = None 
+CACHED_TEXT_EMBEDDING = None
+
 
 def get_image_hash(image_path):
     with open(image_path, "rb") as f:
         return hashlib.md5(f.read()).hexdigest()
 
+
 class SearchText(BaseModel):
     searchText: str
+
 
 class SearchResult(BaseModel):
     caption: str
     score: float
     url: str
-    
+
+
 def get_image_embedding():
     global CACHED_IMAGE_HASH
     global CACHED_EMBEDDING
@@ -85,31 +89,29 @@ def get_image_embedding():
     print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
     return CACHED_EMBEDDING
 
+
 def get_text_embedding(text):
     global CACHED_TEXT
     global CACHED_TEXT_EMBEDDING
     start_time = time.time()
-    #Commenting out as implementation has changed
-    #f = open(TEXT_PATH, 'w')
-    #text = f.read()
-    #If the text is the same then the embedding is the same
-    if text == CACHED_TEXT: 
+    if text == CACHED_TEXT:
         print("Text has not changed. Using cached text embedding")
         return CACHED_TEXT_EMBEDDING
     CACHED_TEXT = text
-    inputs = PROCESSOR(text = text, return_tensors="pt")
+    inputs = PROCESSOR(text=text, return_tensors="pt")
 
-    #Generate text embedding
+    # Generate text embedding
     with torch.no_grad():
         text_embedding = MODEL.get_text_features(**inputs)
 
-    #Convert text embedding from a numpy array to a list
+    # Convert text embedding from a numpy array to a list
     CACHED_TEXT_EMBEDDING = text_embedding.cpu().numpy().tolist()
     end_time = time.time()
-    print(f"Get text embedding execution time: {(end_time - start_time) * 1000} ms")     
+    print(f"Get text embedding execution time: {(end_time - start_time) * 1000} ms")
     return CACHED_TEXT_EMBEDDING
 
-def pinecone_query(embedding): 
+
+def pinecone_query(embedding):
     start_time = time.time()
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
@@ -147,10 +149,12 @@ def pinecone_query(embedding):
         )
     return images
 
+
 def get_text_images(text):
     text_embedding = get_text_embedding(text)
     images = pinecone_query(text_embedding)
     return list(images)
+
 
 def validate_url(url):
     try:
