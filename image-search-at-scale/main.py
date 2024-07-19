@@ -149,7 +149,7 @@ def thread_validation(results):
 def validate_url(url):
     try:
         response = requests.get(url, stream=True, timeout=5)
-        if response.status_code != 404 and "image" in response.headers.get("Content-Type"): 
+        if response.status_code == 200 and "image" in response.headers.get("Content-Type"): 
             return False
         else:
             return True
