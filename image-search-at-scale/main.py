@@ -90,7 +90,7 @@ def pinecone_query(embedding):
 
         query_start_time = time.time()
         result = index.query(
-            vector=embedding, top_k=10, include_metadata=True, filter=metadata_filter
+            vector=embedding, top_k=top_k, include_metadata=True, filter=metadata_filter
         )
         query_response_time = calculate_duration(query_start_time)
         print(f"Pinecone query execution time: {query_response_time} ms")
@@ -128,7 +128,7 @@ def pinecone_query(embedding):
 def thread_updates(index, ids):
     if len(ids) > 0:
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = [executor.submit(mark_vectorid_as_dead, index, id) for id in ids]
+            [executor.submit(mark_vectorid_as_dead, index, id) for id in ids]
     else:
         print("No updates needed")
 
@@ -136,8 +136,9 @@ def mark_vectorid_as_dead(index, id):
     try:
         index.update(id=id, set_metadata = {"dead-link": True})
         print(f"Updated index:\t{id}")
-    except:
+    except Exception as e:
         print(f"Couldnt update index:\t{id}")
+        print(f"Error: {e}")
 
 def thread_validation(results):
     urls = [url["url"] for url in results]
