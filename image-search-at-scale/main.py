@@ -42,6 +42,9 @@ CACHED_EMBEDDING = None
 CACHED_TEXT = None
 CACHED_TEXT_EMBEDDING = None
 
+pc = Pinecone(api_key=PINECONE_API_KEY)
+index = pc.Index(PINECONE_INDEX_NAME)
+
 
 def get_image_hash(image_path):
     with open(image_path, "rb") as f:
@@ -193,16 +196,11 @@ def calculate_duration(start_time):
     return (time.time() - start_time) * 1000
 
 
-@app.get("/images")
-async def image_similarity_search():
-    pc = Pinecone(api_key=PINECONE_API_KEY)
-    index = pc.Index(PINECONE_INDEX_NAME)
+def validate_queries(embedding):
     prev_results = {}
-
     dead_links = True
     while dead_links:
-        image_embedding = get_image_embedding()
-        query_results = pinecone_query(image_embedding, index)
+        query_results = pinecone_query(embedding, index)
         valid_results, invalid_results = validate_results(query_results)
         update_dead_links(index, invalid_results)
 
@@ -212,6 +210,12 @@ async def image_similarity_search():
         else:
             prev_results = valid_results
     return valid_results[:10]
+
+
+@app.get("/images")
+async def image_similarity_search():
+    image_embedding = get_image_embedding()
+    return validate_queries(image_embedding)
 
 
 @app.post("/upload")
@@ -226,4 +230,6 @@ async def upload_file(file: UploadFile = File(...)):
 
 @app.post("/images")
 async def save_search(search_text: SearchText):
-    return get_text_images(search_text.searchText)
+    text_embedding = get_text_embedding(search_text.searchText)
+    return validate_queries(text_embedding)
+
