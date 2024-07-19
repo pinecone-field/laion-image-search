@@ -2,10 +2,15 @@ import React, {useState, useEffect} from 'react'
 import './App.css'
 import ImageFetch from './ImageFetch';
 import PineconeLogo from './assets/pinecone-logo-black.png'
-import OriginalImage from './assets/image.jpeg'
+import Dropzone from './components/Dropzone';
 
 
 function App() {
+  const [uploadedImages, setUploadedImages] = useState([]);
+
+  const handleUploadSuccess = (images) => {
+    setUploadedImages(images);
+  };
 
   return (
     <div className="App">
@@ -18,13 +23,8 @@ function App() {
           <h1 className="header-title">Image Search Demo</h1>
         </div>
       </header>
-        <div className="search-container">
-          <div className="original-photo">
-            <h2 className="original-photo-title">Original Photo</h2>
-            <img src={OriginalImage} alt="Original Photo" className="original-photo-image" />
-          </div>
-        </div>
-      <ImageFetch />
+      <Dropzone onUploadSuccess={handleUploadSuccess} />
+      <ImageFetch uploadedImages={uploadedImages}/>
     </div>
   );
 }

@@ -1,31 +1,31 @@
 import concurrent.futures
 import hashlib
 import os
+import shutil
 import time
 
+from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from transformers import CLIPProcessor, CLIPModel
+from PIL import Image
 
 import requests
 import torch
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from PIL import Image
 from pinecone import Pinecone
-from transformers import CLIPProcessor, CLIPModel
 
 app = FastAPI()
 
-origins = ["http://localhost:3000",
-           "localhost:3000"
-]
+origins = ["http://localhost:3000", "localhost:3000"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
 load_dotenv()
@@ -38,9 +38,11 @@ PROCESSOR = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 CACHED_IMAGE_HASH = None
 CACHED_EMBEDDING = None
 
+
 def get_image_hash(image_path):
-    with open(image_path, 'rb') as f:
+    with open(image_path, "rb") as f:
         return hashlib.md5(f.read()).hexdigest()
+
 
 def get_image_embedding():
     global CACHED_IMAGE_HASH
@@ -73,6 +75,7 @@ def get_image_embedding():
     print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
     return CACHED_EMBEDDING
 
+
 def pinecone_query(embedding):
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
@@ -87,10 +90,7 @@ def pinecone_query(embedding):
 
         query_start_time = time.time()
         result = index.query(
-            vector=embedding,
-            top_k=top_k,
-            include_metadata=True,
-            filter=metadata_filter
+            vector=embedding, top_k=10, include_metadata=True, filter=metadata_filter
         )
         query_response_time = calculate_duration(query_start_time)
         print(f"Pinecone query execution time: {query_response_time} ms")
@@ -110,11 +110,13 @@ def pinecone_query(embedding):
             if len(valid_images) >= 10:
                 break
             if m["id"] not in [image["id"] for image in invalid_results]:
-                valid_images.append({
+                valid_images.append(
+                  {
                     "caption": m.metadata["caption"],
                     "url": m.metadata["url"],
                     "score": m.score
-            })
+                  }
+              )
                 
         #Some queries will not return 10 images, this check prevents endless loop
         if len(valid_images) >= 10 or prev_images == valid_images:
@@ -162,8 +164,20 @@ def is_dead_link(url):
 def calculate_duration(start_time):
     return (time.time() - start_time) * 1000
 
+
 @app.get("/images")
 async def image_similarity_search():
     image_embedding = get_image_embedding()
     images = pinecone_query(image_embedding)
+
     return list(images)
+
+
+@app.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    try:
+        with open(IMAGE_PATH, "wb+") as file_object:
+            shutil.copyfileobj(file.file, file_object)
+        return {"message": "Upload Successful!"}
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
