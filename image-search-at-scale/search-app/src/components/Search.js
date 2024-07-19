@@ -44,7 +44,6 @@ const SearchComponent = () => {
         onKeyPress={handleKeyPress}
       />
       <button className="search-button" onClick={handleSearchSubmit}>Search</button>
-      {/* Render searchResults here */}
     </div>
   );
 };
