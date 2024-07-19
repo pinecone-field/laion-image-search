@@ -114,11 +114,10 @@ def get_text_embedding(text):
     print(f"Get text embedding execution time: {(end_time - start_time) * 1000} ms")
     return CACHED_TEXT_EMBEDDING
 
-                
+
 def pinecone_query(embedding, index):
     top_k = 15
     metadata_filter = {"dead-link": {"$ne": True}}
-
 
     query_start_time = time.time()
     result = index.query(
@@ -224,13 +223,11 @@ def validate_queries(embedding):
             prev_results = valid_results
     return valid_results[:10]
 
+
 @app.get("/images")
 async def image_similarity_search():
     image_embedding = get_image_embedding()
     return validate_queries(image_embedding)
-
-
-
 
 
 @app.post("/upload")
@@ -247,4 +244,3 @@ async def upload_file(file: UploadFile = File(...)):
 async def save_search(search_text: SearchText):
     text_embedding = get_text_embedding(search_text.searchText)
     return validate_queries(text_embedding)
-
