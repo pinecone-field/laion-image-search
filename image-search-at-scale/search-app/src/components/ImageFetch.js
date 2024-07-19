@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { ImageContext } from './ImageContext';
+import configData from './config.json'
 
 const ImageFetch = () => {
   const { setImages } = useContext(ImageContext);
   const [error, setError] = useState(null);
   const [fetching, setFetching] = useState(false);
+  const SERVER_URL = configData.SERVER_URL
 
   const fetchImages = () => {
     setFetching(true);
-    fetch('http://localhost:8000/images')
+    fetch(SERVER_URL)
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
