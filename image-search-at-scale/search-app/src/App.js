@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import './App.css'
 import ImageFetch from './components/ImageFetch';
 import PineconeLogo from './assets/pinecone-logo-black.png'
-import OriginalImage from './assets/image.jpeg'
+import Dropzone from './components/Dropzone';
 import configData from './config.json'
 import Search from './components/Search';
 import ImageDisplay from './components/ImageDisplay';
