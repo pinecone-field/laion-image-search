@@ -86,7 +86,7 @@ def pinecone_query(embedding):
     while dead_links:
         valid_images = []
         query_results = []
-        metadata_filter = {"dead-link": {"$ne": True}} 
+        metadata_filter = {"dead-link": {"$ne": True}}
 
         query_start_time = time.time()
         result = index.query(
@@ -96,8 +96,10 @@ def pinecone_query(embedding):
         print(f"Pinecone query execution time: {query_response_time} ms")
 
         for m in result.matches:
-            query_results.append({"id": m["id"], "url": m["metadata"]["url"], "dead-link": False})
-        
+            query_results.append(
+                {"id": m["id"], "url": m["metadata"]["url"], "dead-link": False}
+            )
+
         validation_start_time = time.time()
         query_results = thread_validation(query_results)
         validation_time = calculate_duration(validation_start_time)
@@ -111,19 +113,20 @@ def pinecone_query(embedding):
                 break
             if m["id"] not in [image["id"] for image in invalid_results]:
                 valid_images.append(
-                  {
-                    "caption": m.metadata["caption"],
-                    "url": m.metadata["url"],
-                    "score": m.score
-                  }
-              )
-                
-        #Some queries will not return 10 images, this check prevents endless loop
+                    {
+                        "caption": m.metadata["caption"],
+                        "url": m.metadata["url"],
+                        "score": m.score,
+                    }
+                )
+
+        # Some queries will not return 10 images, this check prevents endless loop
         if len(valid_images) >= 10 or prev_images == valid_images:
             dead_links = False
 
         prev_images = valid_images
     return valid_images
+
 
 def thread_updates(index, ids):
     if len(ids) > 0:
@@ -132,13 +135,15 @@ def thread_updates(index, ids):
     else:
         print("No updates needed")
 
+
 def mark_vectorid_as_dead(index, id):
     try:
-        index.update(id=id, set_metadata = {"dead-link": True})
+        index.update(id=id, set_metadata={"dead-link": True})
         print(f"Updated index:\t{id}")
     except Exception as e:
         print(f"Couldnt update index:\t{id}")
         print(f"Error: {e}")
+
 
 def thread_validation(results):
     urls = [url["url"] for url in results]
@@ -148,10 +153,13 @@ def thread_validation(results):
         results[i]["dead-link"] = dead_link
     return results
 
+
 def is_dead_link(url):
     try:
         response = requests.get(url, stream=True, timeout=5)
-        if response.status_code == 200 and "image" in response.headers.get("Content-Type"): 
+        if response.status_code == 200 and "image" in response.headers.get(
+            "Content-Type"
+        ):
             return False
         else:
             return True
@@ -161,7 +169,8 @@ def is_dead_link(url):
     except TypeError:
         print("Image has no Content-Type header")
         return True
-    
+
+
 def calculate_duration(start_time):
     return (time.time() - start_time) * 1000
 
