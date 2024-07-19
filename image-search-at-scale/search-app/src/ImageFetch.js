@@ -9,7 +9,7 @@ const ImageFetch = () => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const SERVER_URL = configData.SERVER_URL
 
-  useEffect(() => {
+  const fetchImages = () => {
     fetch(SERVER_URL)
       .then(response => {
         if (!response.ok) {
@@ -26,6 +26,10 @@ const ImageFetch = () => {
         }
       })
       .catch(error => setError(error));
+  }
+
+  useEffect(() => {
+    fetchImages();
   }, []); 
 
   const handleMouseEnter = (index) => {
@@ -47,6 +51,8 @@ const ImageFetch = () => {
       });
       if (!response.ok) {
         throw new Error('Network response was not ok');
+      } else {
+        fetchImages()
       }
 
       const data = await response.json();

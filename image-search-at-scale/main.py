@@ -154,7 +154,6 @@ async def download_image(image_url: ImageURL):
                 image = image.convert("RGB")
 
             image.save(IMAGE_PATH)
-            print("Image download successful")
+            return {"success": True}
     except Exception as e:
-        print(f"Image download unsuccessful: {e}")
-        print(image_url.image_url)
+        return {"success": False, "url": image_url.image_url}
