@@ -1,0 +1,14 @@
+.drag-drop img {
+    border: 2px dashed #cccccc;
+    border-radius: 10px; 
+    width: auto;
+    height: auto;
+    max-height: 250px;
+    max-width: 300px;
+    justify-content: center;
+    align-content: center;
+  }
+
+  .drag-drop img:hover {
+    cursor: pointer;
+  }

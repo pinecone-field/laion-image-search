@@ -1,11 +1,12 @@
 from io import BytesIO
 import hashlib
 import os
+import shutil
 import time
 import shutil
 
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
@@ -129,6 +130,7 @@ def validate_url(url):
 async def image_similarity_search():
     image_embedding = get_image_embedding()
     images = pinecone_query(image_embedding)
+
     return list(images)
 
 @app.post("/upload")

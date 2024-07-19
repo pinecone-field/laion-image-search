@@ -44,10 +44,10 @@ The web-app should launch in your preferred browser.
 1. [OPTIONAL] Open a browser for this url: http://localhost:8000/docs. You can test the backend API call here and talk about how any user interface could be built on top of this endpoint.
 
 
-2. You can swap the image out by doing a search on http://images.google.com and saving the image to the ```./search-app/src/assets/image.jpeg``` file.
+2. You can swap the image out by doing a search on http://images.google.com and saving the image to the ```./search-app/src/assets/image.jpeg``` file. Alternatively, you can drag and drop an image into the drag and drop box. The image must be saved to your device. This will automatically re-run the similarity search against the new image. 
 
 
-3. Refresh http://localhost:3000/ and similarity search will re-run against the new image.
+3. (If you did not drag and drop) Refresh http://localhost:3000/ and similarity search will re-run against the new image.
 
 
 4. Click on the ```Pinecone Logo```. It will direct link you to the index that drives this demo.

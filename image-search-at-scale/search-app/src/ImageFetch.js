@@ -32,6 +32,10 @@ const ImageFetch = ({ uploadedImages }) => {
 
   useEffect(() => {
     fetchImages();
+  }, []);
+
+  useEffect(() => {
+    fetchImages();
   }, [uploadedImages]);
 
   const handleMouseEnter = (index) => {
@@ -102,6 +106,6 @@ const ImageFetch = ({ uploadedImages }) => {
       )}
     </div>
   );
-};
+}
 
 export default ImageFetch;
