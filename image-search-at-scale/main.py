@@ -41,6 +41,9 @@ CACHED_EMBEDDING = None
 CACHED_TEXT = None
 CACHED_TEXT_EMBEDDING = None
 
+pc = Pinecone(api_key=PINECONE_API_KEY)
+index = pc.Index(PINECONE_INDEX_NAME)
+
 
 def get_image_hash(image_path):
     with open(image_path, "rb") as f:
@@ -111,31 +114,6 @@ def get_text_embedding(text):
     print(f"Get text embedding execution time: {(end_time - start_time) * 1000} ms")
     return CACHED_TEXT_EMBEDDING
 
-
-def pinecone_query(embedding):
-    pc = Pinecone(api_key=PINECONE_API_KEY)
-    index = pc.Index(PINECONE_INDEX_NAME)
-
-    dead_links = True
-    while dead_links:
-        dead_link_count = 0
-        images = []
-        metadata_filter = {"dead-link": {"$ne": True}}
-
-        query_start_time = time.time()
-        result = index.query(
-            vector=embedding, top_k=10, include_metadata=True, filter=metadata_filter
-        )
-        query_response_time = round((time.time() - query_start_time) * 1000, 0)
-        print(f"Pinecone query execution time: {query_response_time} ms")
-
-        for match in result.matches:
-            url = match["metadata"]["url"]
-            if not validate_url(url):
-                print(f"\nRemoving dead link: {url}")
-                dead_link_count += 1
-                index.update(id=match["id"], set_metadata={"dead-link": True})
-
                 
 def pinecone_query(embedding, index):
     top_k = 15
@@ -177,7 +155,7 @@ def validate_results(query_results):
 
 def get_text_images(text):
     text_embedding = get_text_embedding(text)
-    images = pinecone_query(text_embedding)
+    images = pinecone_query(text_embedding, index)
     return list(images)
 
 
@@ -231,16 +209,11 @@ def calculate_duration(start_time):
     return (time.time() - start_time) * 1000
 
 
-@app.get("/images")
-async def image_similarity_search():
-    pc = Pinecone(api_key=PINECONE_API_KEY)
-    index = pc.Index(PINECONE_INDEX_NAME)
+def validate_queries(embedding):
     prev_results = {}
-
     dead_links = True
     while dead_links:
-        image_embedding = get_image_embedding()
-        query_results = pinecone_query(image_embedding, index)
+        query_results = pinecone_query(embedding, index)
         valid_results, invalid_results = validate_results(query_results)
         update_dead_links(index, invalid_results)
 
@@ -250,6 +223,14 @@ async def image_similarity_search():
         else:
             prev_results = valid_results
     return valid_results[:10]
+
+@app.get("/images")
+async def image_similarity_search():
+    image_embedding = get_image_embedding()
+    return validate_queries(image_embedding)
+
+
+
 
 
 @app.post("/upload")
@@ -264,4 +245,6 @@ async def upload_file(file: UploadFile = File(...)):
 
 @app.post("/images")
 async def save_search(search_text: SearchText):
-    return get_text_images(search_text.searchText)
+    text_embedding = get_text_embedding(search_text.searchText)
+    return validate_queries(text_embedding)
+
