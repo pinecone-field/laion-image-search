@@ -72,8 +72,7 @@ def get_image_embedding():
     # Convert the image embedding from a numpy array to a list
     CACHED_EMBEDDING = image_embeddings.cpu().numpy().tolist()
 
-    end_time = time.time()
-    print(f"Get image embedding execution time: {calculate_duration(end_time)} ms")
+    print(f"Get image embedding execution time: {calculate_duration(start_time)} ms")
     return CACHED_EMBEDDING
 
 
