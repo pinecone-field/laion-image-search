@@ -1,3 +1,4 @@
+from io import BytesIO
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 from transformers import CLIPProcessor, CLIPModel
@@ -130,9 +131,6 @@ async def image_similarity_search():
     images = pinecone_query(image_embedding)
     return list(images)
 
-
-    return [image for image in images]
-
 @app.post("/upload")
 async def upload_file(file:UploadFile = File(...)):
     try:
@@ -147,4 +145,16 @@ class ImageURL(BaseModel):
 
 @app.post("/download-image")
 async def download_image(image_url: ImageURL):
-    print(image_url.image_url)
+    try:
+        response = requests.get(image_url.image_url, stream=True, timeout=5)
+        if response.status_code == 200 and "image" in response.headers.get("Content-Type"):
+            image = Image.open(BytesIO(response.content))
+
+            if image.mode in ("P", "RGBA"):
+                image = image.convert("RGB")
+
+            image.save(IMAGE_PATH)
+            print("Image download successful")
+    except Exception as e:
+        print(f"Image download unsuccessful: {e}")
+        print(image_url.image_url)
