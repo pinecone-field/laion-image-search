@@ -60,7 +60,7 @@ def get_image_embedding():
     global CACHED_IMAGE_HASH
     global CACHED_EMBEDDING
 
-    #TODO: Update this with duration function
+    # TODO: Update this with duration function
     start_time = time.time()
 
     # Get the hash of the new image
@@ -95,15 +95,15 @@ def get_text_embedding(text):
     global CACHED_TEXT
     global CACHED_TEXT_EMBEDDING
 
-    #TODO: Update with duration function
+    # TODO: Update with duration function
     start_time = time.time()
     if text == CACHED_TEXT:
         print("Text has not changed. Using cached text embedding")
         return CACHED_TEXT_EMBEDDING
-    
+
     CACHED_TEXT = text
     inputs = PROCESSOR(text=text, return_tensors="pt")
-    
+
     with torch.no_grad():
         text_embedding = MODEL.get_text_features(**inputs)
     CACHED_TEXT_EMBEDDING = text_embedding.cpu().numpy().tolist()
