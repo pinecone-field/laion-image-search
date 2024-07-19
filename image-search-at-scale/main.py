@@ -102,7 +102,6 @@ def pinecone_query(embedding, index):
 
 
 def get_results(query_results):
-    valid_results = []
     validation_start_time = time.time()
     query_results = thread_validation(query_results)
     validation_time = calculate_duration(validation_start_time)
