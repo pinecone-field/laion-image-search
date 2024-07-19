@@ -126,6 +126,9 @@ def validate_url(url):
     except requests.exceptions.RequestException as e:
         print(f"Cannot Reach:\n{url}.\nError: {e}")
         return False
+    except TypeError:
+        print("Image has no Content-Type header")
+        return True
 
 
 @app.get("/images")
