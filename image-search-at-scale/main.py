@@ -1,4 +1,5 @@
 from io import BytesIO
+import concurrent.futures
 import hashlib
 import os
 import shutil
@@ -60,7 +61,6 @@ def get_image_embedding():
         return CACHED_EMBEDDING
 
     CACHED_IMAGE_HASH = new_image_hash
-    # If the hash of the new image is the same as the hash of the cached image,
     print("Computing the image embedding")
     image = Image.open(IMAGE_PATH)
 
@@ -78,67 +78,112 @@ def get_image_embedding():
     return CACHED_EMBEDDING
 
 
-def pinecone_query(embedding):
-    pc = Pinecone(api_key=PINECONE_API_KEY)
-    index = pc.Index(PINECONE_INDEX_NAME)
+def pinecone_query(embedding, index):
+    top_k = 15
+    metadata_filter = {"dead-link": {"$ne": True}}
 
-    dead_links = True
-    while dead_links:
-        dead_link_count = 0
-        images = []
-        metadata_filter = {"dead-link": {"$ne": True}}
+    query_start_time = time.time()
+    result = index.query(
+        vector=embedding, top_k=top_k, include_metadata=True, filter=metadata_filter
+    )
+    query_response_time = calculate_duration(query_start_time)
+    print(f"Pinecone query execution time: {query_response_time} ms")
 
-        query_start_time = time.time()
-        result = index.query(
-            vector=embedding, top_k=10, include_metadata=True, filter=metadata_filter
-        )
-        query_response_time = round((time.time() - query_start_time) * 1000, 0)
-        print(f"Pinecone query execution time: {query_response_time} ms")
-
-        for match in result.matches:
-            url = match["metadata"]["url"]
-            if not validate_url(url):
-                print(f"\nRemoving dead link: {url}")
-                dead_link_count += 1
-                index.update(id=match["id"], set_metadata={"dead-link": True})
-
-        if dead_link_count == 0:
-            dead_links = False
-
+    query_results = []
     for m in result.matches:
-        images.append(
+        query_results.append(
             {
-                "caption": m.metadata["caption"],
-                "url": m.metadata["url"],
-                "score": m.score,
+                "id": m["id"],
+                "url": m["metadata"]["url"],
+                "dead-link": False,
+                "score": m["score"],
+                "caption": m["metadata"]["caption"],
             }
         )
-    return images
+    return query_results
 
 
-def validate_url(url):
+def validate_results(query_results):
+    validation_start_time = time.time()
+    query_results = thread_validation(query_results)
+    validation_time = calculate_duration(validation_start_time)
+    print(f"Url validation time:\t{validation_time}ms")
+
+    valid_results = [image for image in query_results if not image["dead-link"]]
+    invalid_results = [image for image in query_results if image["dead-link"]]
+
+    return valid_results, invalid_results
+
+
+def update_dead_links(index, invalid_results):
+    if len(invalid_results) > 0:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            [
+                executor.submit(mark_vectorid_as_dead, index, result["id"])
+                for result in invalid_results
+            ]
+    else:
+        print("No updates needed")
+
+
+def mark_vectorid_as_dead(index, id):
+    try:
+        index.update(id=id, set_metadata={"dead-link": True})
+        print(f"Updated index:\t{id}")
+    except Exception as e:
+        print(f"Couldnt update index:\t{id}")
+        print(f"Error: {e}")
+
+
+def thread_validation(results):
+    urls = [url["url"] for url in results]
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        dead_links = list(executor.map(is_dead_link, urls))
+    for i, dead_link in enumerate(dead_links):
+        results[i]["dead-link"] = dead_link
+    return results
+
+
+def is_dead_link(url):
     try:
         response = requests.get(url, stream=True, timeout=5)
-        if response.status_code != 404 and "image" in response.headers.get(
+        if response.status_code == 200 and "image" in response.headers.get(
             "Content-Type"
         ):
-            return True
-        else:
             return False
+        else:
+            return True
     except requests.exceptions.RequestException as e:
         print(f"Cannot Reach:\n{url}.\nError: {e}")
-        return False
+        return True
     except TypeError:
         print("Image has no Content-Type header")
         return True
 
 
+def calculate_duration(start_time):
+    return (time.time() - start_time) * 1000
+
+
 @app.get("/images")
 async def image_similarity_search():
-    image_embedding = get_image_embedding()
-    images = pinecone_query(image_embedding)
+    pc = Pinecone(api_key=PINECONE_API_KEY)
+    index = pc.Index(PINECONE_INDEX_NAME)
+    prev_results = {}
 
-    return list(images)
+    dead_links = True
+    while dead_links:
+        image_embedding = get_image_embedding()
+        query_results = pinecone_query(image_embedding, index)
+        valid_results, invalid_results = validate_results(query_results)
+        update_dead_links(index, invalid_results)
+
+        # Some queries will not return 10 images, this check prevents endless loop
+        if len(valid_results) >= 10 or prev_results == valid_results:
+            dead_links = False
+        else:
+            prev_results = valid_results
+    return valid_results[:10]
 
 
 @app.post("/upload")
