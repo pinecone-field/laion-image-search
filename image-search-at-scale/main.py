@@ -11,7 +11,6 @@ from PIL import Image
 from pydantic import BaseModel
 import requests
 import torch
-from typing import List
 
 from dotenv import load_dotenv
 from pinecone import Pinecone
@@ -112,7 +111,6 @@ def get_text_embedding(text):
 
 
 def pinecone_query(embedding):
-    start_time = time.time()
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
 

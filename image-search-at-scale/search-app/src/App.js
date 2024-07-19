@@ -36,10 +36,10 @@ function App() {
           <h1 className="header-title">Image Search Demo</h1>
         </div>
       </header>
-        <div className="search-container">
+      <div className="search-container">
             <Search />
-        </div>
       <Dropzone onUploadSuccess={handleUploadSuccess} />
+      </div>
       <ImageFetch uploadedImages={uploadedImages}/>
       <ImageDisplay/>
     </div>
