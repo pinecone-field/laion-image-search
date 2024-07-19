@@ -56,7 +56,7 @@ function App() {
       </header>
         <div className="search-container">
             <div className="search-bar">
-      
+            {/*Text search to be added here */}
             </div>
           <div className="original-photo">
             <h2 className="original-photo-title">Original Photo</h2>
