@@ -22,7 +22,7 @@ body {
 .search-bar {
   display: flex;
   align-items: center;
-  margin-right: 20px; /* Add margin to push the photo to the right */
+  margin-right: 20px;
 }
 
 .search-input {
