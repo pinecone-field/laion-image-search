@@ -1,42 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './ImageFetch.css';
-import configData from './config.json';
+// src/components/ImageDisplay.js
+import React, { useContext, useState } from 'react';
+import './ImageDisplay.css';
+import { ImageContext } from './ImageContext';
+import { fetchImages } from './ImageFetch';
 
-const ImageFetch = ({ uploadedImages }) => {
-  const [images, setImages] = useState([]);
-  const [error, setError] = useState(null);
+const ImageDisplay = () => {
+  const { setImages } = useContext(ImageContext);
+  const { images } = useContext(ImageContext);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [fetching, setFetching] = useState(false);
-  const SERVER_URL = configData.SERVER_URL;
-
-  const fetchImages = async () => {
-    setFetching(true);
-    try {
-      const response = await fetch(SERVER_URL);
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data = await response.json();
-      if (Array.isArray(data)) {
-        setImages(data);
-      } else {
-        throw new Error('Fetched data is not an array');
-      }
-    } catch (error) {
-      setError(error);
-    } finally {
-      setFetching(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchImages();
-  }, []);
-
-  useEffect(() => {
-    fetchImages();
-  }, [uploadedImages]);
+  const [error, setError] = useState(null);
 
   const handleMouseEnter = (index) => {
     setHoveredIndex(index);
@@ -58,18 +31,15 @@ const ImageFetch = ({ uploadedImages }) => {
       if (!response.ok) {
         throw new Error('Network response was not ok');
       } else {
-        fetchImages()
+        console.log("Fetching...")
+        fetchImages(setImages, setError, setFetching)
       }
-
+  
       const data = await response.json();
       console.log('Response from backend:', data);
     } catch (error) {
       console.error('There was a problem with the fetch operation')
     }
-  }
-
-  if (error) {
-    return <div>Error: {error.message}</div>;
   }
 
   return (
@@ -108,4 +78,4 @@ const ImageFetch = ({ uploadedImages }) => {
   );
 }
 
-export default ImageFetch;
+export default ImageDisplay;
