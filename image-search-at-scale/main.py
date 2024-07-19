@@ -41,8 +41,8 @@ CACHED_EMBEDDING = None
 CACHED_TEXT = None
 CACHED_TEXT_EMBEDDING = None
 
-pc = Pinecone(api_key=PINECONE_API_KEY)
-index = pc.Index(PINECONE_INDEX_NAME)
+PC = Pinecone(api_key=PINECONE_API_KEY)
+INDEX = PC.Index(PINECONE_INDEX_NAME)
 
 
 def get_image_hash(image_path):
@@ -63,9 +63,7 @@ class SearchResult(BaseModel):
 def get_image_embedding():
     global CACHED_IMAGE_HASH
     global CACHED_EMBEDDING
-
-    # TODO: Update this with duration function
-    start_time = time.time()
+    img_embeddeing_start_time = time.time()
 
     # Get the hash of the new image
     new_image_hash = get_image_hash(IMAGE_PATH)
@@ -89,17 +87,16 @@ def get_image_embedding():
     # Convert the image embedding from a numpy array to a list
     CACHED_EMBEDDING = image_embeddings.cpu().numpy().tolist()
 
-    end_time = time.time()
-    print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
+    img_embedding_duration = calculate_duration(img_embeddeing_start_time)
+    print(f"Get image embedding execution time: {(img_embedding_duration) * 1000} ms")
     return CACHED_EMBEDDING
 
 
 def get_text_embedding(text):
     global CACHED_TEXT
     global CACHED_TEXT_EMBEDDING
+    txt_embedding_start_time = time.time()
 
-    # TODO: Update with duration function
-    start_time = time.time()
     if text == CACHED_TEXT:
         print("Text has not changed. Using cached text embedding")
         return CACHED_TEXT_EMBEDDING
@@ -110,8 +107,8 @@ def get_text_embedding(text):
     with torch.no_grad():
         text_embedding = MODEL.get_text_features(**inputs)
     CACHED_TEXT_EMBEDDING = text_embedding.cpu().numpy().tolist()
-    end_time = time.time()
-    print(f"Get text embedding execution time: {(end_time - start_time) * 1000} ms")
+    txt_embedding_duration = calculate_duration(txt_embedding_start_time)
+    print(f"Get text embedding execution time: {txt_embedding_duration * 1000} ms")
     return CACHED_TEXT_EMBEDDING
 
 
@@ -154,7 +151,7 @@ def validate_results(query_results):
 
 def get_text_images(text):
     text_embedding = get_text_embedding(text)
-    images = pinecone_query(text_embedding, index)
+    images = pinecone_query(text_embedding, INDEX)
     return list(images)
 
 
@@ -212,9 +209,9 @@ def validate_queries(embedding):
     prev_results = {}
     dead_links = True
     while dead_links:
-        query_results = pinecone_query(embedding, index)
+        query_results = pinecone_query(embedding, INDEX)
         valid_results, invalid_results = validate_results(query_results)
-        update_dead_links(index, invalid_results)
+        update_dead_links(INDEX, invalid_results)
 
         # Some queries will not return 10 images, this check prevents endless loop
         if len(valid_results) >= 10 or prev_results == valid_results:
