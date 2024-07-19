@@ -1,18 +1,18 @@
 from io import BytesIO
+import hashlib
+import os
+import time
+import shutil
+
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
-import os
-import time
-import hashlib
 
-import shutil
 import torch
 import requests
 from dotenv import load_dotenv
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from pinecone import Pinecone
 from pydantic import BaseModel
 
@@ -160,6 +160,5 @@ async def download_image(image_url: ImageURL):
             image.save(IMAGE_PATH)
             print("s")
             return {"success": True}
-    except Exception as e:
-        print(f"f: {e}")
+    except:
         return {"success": False, "url": image_url.image_url}
