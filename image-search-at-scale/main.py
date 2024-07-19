@@ -1,22 +1,38 @@
 import hashlib
 import os
+import shutil
 import time
 
+from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
-from dotenv import load_dotenv
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
+
 import requests
 import torch
-from transformers import CLIPModel, CLIPProcessor
+
+from dotenv import load_dotenv
 from pinecone import Pinecone
 
 app = FastAPI()
 
+origins = ["http://localhost:3000",
+           "localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
 load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
-IMAGE_PATH = "./static/image.jpeg"
+IMAGE_PATH = "./search-app/src/assets/image.jpeg"
 MODEL = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 PROCESSOR = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
@@ -29,7 +45,7 @@ def get_image_hash(image_path):
         return hashlib.md5(f.read()).hexdigest()
 
 
-def get_embedding():
+def get_image_embedding():
     global CACHED_IMAGE_HASH
     global CACHED_EMBEDDING
     start_time = time.time()
@@ -74,7 +90,10 @@ def pinecone_query(embedding):
 
         query_start_time = time.time()
         result = index.query(
-            vector=embedding, top_k=10, include_metadata=True, filter=metadata_filter
+            vector=embedding,
+            top_k=10,
+            include_metadata=True,
+            filter=metadata_filter
         )
         query_response_time = round((time.time() - query_start_time) * 1000, 0)
         print(f"Pinecone query execution time: {query_response_time} ms")
@@ -97,15 +116,12 @@ def pinecone_query(embedding):
                 "score": m.score,
             }
         )
-    return images, query_response_time
-
+    return images
 
 def validate_url(url):
     try:
         response = requests.get(url, stream=True, timeout=5)
-        if response.status_code != 404 and "image" in response.headers.get(
-            "Content-Type"
-        ):
+        if response.status_code != 404 and "image" in response.headers.get("Content-Type"):
             return True
         else:
             return False
@@ -116,10 +132,17 @@ def validate_url(url):
 
 @app.get("/images")
 async def image_similarity_search():
-    image_embedding = get_embedding()
-    images, query_response_time = pinecone_query(image_embedding)
+    image_embedding = get_image_embedding()
+    images = pinecone_query(image_embedding)
 
-    return {"images": images, "query_response_time": query_response_time}
+    return list(images)
 
+@app.post("/upload")
+async def upload_file(file:UploadFile = File(...)):
+    try:
+        with open(IMAGE_PATH, "wb+") as file_object:
+            shutil.copyfileobj(file.file, file_object)
+        return {"message": "Upload Successful!"}
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
-app.mount("/", StaticFiles(directory="static"), name="static")
