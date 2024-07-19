@@ -150,10 +150,16 @@ async def download_image(image_url: ImageURL):
         if response.status_code == 200 and "image" in response.headers.get("Content-Type"):
             image = Image.open(BytesIO(response.content))
 
-            if image.mode in ("P", "RGBA"):
-                image = image.convert("RGB")
+            if image.mode == "P":
+                image = image.convert("RGBA")
+            if image.mode == "RGBA":
+                background = Image.new("RGB", image.size, (255, 255, 255))
+                background.paste(image, (0, 0), image)
+                image = background
 
             image.save(IMAGE_PATH)
+            print("s")
             return {"success": True}
     except Exception as e:
+        print(f"f: {e}")
         return {"success": False, "url": image_url.image_url}
