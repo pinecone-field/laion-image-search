@@ -4,7 +4,6 @@ import hashlib
 import os
 import shutil
 import time
-import shutil
 
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -218,5 +217,5 @@ async def download_image(image_url: ImageURL):
 
             image.save(IMAGE_PATH)
             return {"success": True}
-    except:
-        return {"success": False, "url": image_url.image_url}
+    except Exception as e:
+        return {"success": False, "url": image_url.image_url, "error": e}
