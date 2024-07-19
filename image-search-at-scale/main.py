@@ -113,10 +113,10 @@ def validate_results(query_results):
     return valid_results, invalid_results
 
 
-def update_dead_links(index, ids):
-    if len(ids) > 0:
+def update_dead_links(index, invalid_results):
+    if len(invalid_results) > 0:
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            [executor.submit(mark_vectorid_as_dead, index, id) for id in ids]
+            [executor.submit(mark_vectorid_as_dead, index, result["id"]) for result in invalid_results]
     else:
         print("No updates needed")
 
@@ -171,7 +171,7 @@ async def image_similarity_search():
         image_embedding = get_image_embedding()
         query_results = pinecone_query(image_embedding, index)
         valid_results, invalid_results = validate_results(query_results)
-        update_dead_links(index, [id["id"] for id in invalid_results])
+        update_dead_links(index, invalid_results)
 
         # Some queries will not return 10 images, this check prevents endless loop
         if len(valid_results) >= 10 or prev_results == valid_results:
