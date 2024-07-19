@@ -1,31 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import './ImageFetch.css';
-import configData from './config.json'
+import configData from './config.json';
 
-const ImageFetch = () => {
+const ImageFetch = ({ uploadedImages }) => {
   const [images, setImages] = useState([]);
   const [error, setError] = useState(null);
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  const SERVER_URL = configData.SERVER_URL
+  const [fetching, setFetching] = useState(false);
+  const SERVER_URL = configData.SERVER_URL;
+
+  const fetchImages = async () => {
+    setFetching(true);
+    try {
+      const response = await fetch(SERVER_URL);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        setImages(data);
+      } else {
+        throw new Error('Fetched data is not an array');
+      }
+    } catch (error) {
+      setError(error);
+    } finally {
+      setFetching(false);
+    }
+  };
 
   useEffect(() => {
-    fetch(SERVER_URL)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Fetched data:', data); 
-        if (Array.isArray(data)) {
-          setImages(data);
-        } else {
-          throw new Error('Fetched data is not an array');
-        }
-      })
-      .catch(error => setError(error));
-  }, []); 
+    fetchImages();
+  }, []);
+
+  useEffect(() => {
+    if (uploadedImages.length > 0) {
+      fetchImages();
+    }
+  }, [uploadedImages]);
 
   const handleMouseEnter = (index) => {
     setHoveredIndex(index);
@@ -40,8 +52,11 @@ const ImageFetch = () => {
   }
 
   return (
-      <div className="image-grid-container">
-        <h1>Search Results</h1>
+    <div className="image-grid-container">
+      <h1>Search Results</h1>
+      {fetching ? (
+        <p>Loading...</p>
+      ) : (
         <div className="image-grid">
           {images.map((image, index) => (
             <div
@@ -66,8 +81,9 @@ const ImageFetch = () => {
             </div>
           ))}
         </div>
-      </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export default ImageFetch;
