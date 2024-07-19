@@ -75,60 +75,37 @@ def get_image_embedding():
     print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
     return CACHED_EMBEDDING
 
-
-def pinecone_query(embedding):
-    pc = Pinecone(api_key=PINECONE_API_KEY)
-    index = pc.Index(PINECONE_INDEX_NAME)
+def pinecone_query(embedding, index):
     top_k = 15
-    prev_images = []
+    metadata_filter = {"dead-link": {"$ne": True}}
 
-    dead_links = True
-    while dead_links:
-        valid_images = []
-        query_results = []
-        metadata_filter = {"dead-link": {"$ne": True}}
+    query_start_time = time.time()
+    result = index.query(
+        vector=embedding, top_k=top_k, include_metadata=True, filter=metadata_filter
+    )
+    query_response_time = calculate_duration(query_start_time)
+    print(f"Pinecone query execution time: {query_response_time} ms")
 
-        query_start_time = time.time()
-        result = index.query(
-            vector=embedding, top_k=top_k, include_metadata=True, filter=metadata_filter
+    query_results = []
+    for m in result.matches:
+        query_results.append(
+            {"id": m["id"], "url": m["metadata"]["url"], "dead-link": False, "score": m["score"], "caption": m["metadata"]["caption"]}
         )
-        query_response_time = calculate_duration(query_start_time)
-        print(f"Pinecone query execution time: {query_response_time} ms")
+    return query_results
 
-        for m in result.matches:
-            query_results.append(
-                {"id": m["id"], "url": m["metadata"]["url"], "dead-link": False}
-            )
+def get_results(query_results):
+    valid_results = []
+    validation_start_time = time.time()
+    query_results = thread_validation(query_results)
+    validation_time = calculate_duration(validation_start_time)
+    print(f"Url validation time:\t{validation_time}ms")
 
-        validation_start_time = time.time()
-        query_results = thread_validation(query_results)
-        validation_time = calculate_duration(validation_start_time)
-        print(f"Url validation time:\t{validation_time}ms")
+    valid_results = [image for image in query_results if not image["dead-link"]]
+    invalid_results = [image for image in query_results if image["dead-link"]]
 
-        invalid_results = [image for image in query_results if image["dead-link"]]
-        thread_updates(index, [id["id"] for id in invalid_results])
+    return valid_results, invalid_results
 
-        for m in result.matches:
-            if len(valid_images) >= 10:
-                break
-            if m["id"] not in [image["id"] for image in invalid_results]:
-                valid_images.append(
-                    {
-                        "caption": m.metadata["caption"],
-                        "url": m.metadata["url"],
-                        "score": m.score,
-                    }
-                )
-
-        # Some queries will not return 10 images, this check prevents endless loop
-        if len(valid_images) >= 10 or prev_images == valid_images:
-            dead_links = False
-
-        prev_images = valid_images
-    return valid_images
-
-
-def thread_updates(index, ids):
+def update_dead_links(index, ids):
     if len(ids) > 0:
         with concurrent.futures.ThreadPoolExecutor() as executor:
             [executor.submit(mark_vectorid_as_dead, index, id) for id in ids]
@@ -177,10 +154,23 @@ def calculate_duration(start_time):
 
 @app.get("/images")
 async def image_similarity_search():
-    image_embedding = get_image_embedding()
-    images = pinecone_query(image_embedding)
+    pc = Pinecone(api_key=PINECONE_API_KEY)
+    index = pc.Index(PINECONE_INDEX_NAME)
+    prev_results = {}
+    
+    dead_links = True
+    while dead_links:
+        image_embedding = get_image_embedding()
+        query_results = pinecone_query(image_embedding, index)
+        valid_results, invalid_results = get_results(query_results)
+        update_dead_links(index, [id["id"] for id in invalid_results])
 
-    return list(images)
+         # Some queries will not return 10 images, this check prevents endless loop
+        if len(valid_results) >= 10 or prev_results == valid_results:
+            dead_links = False
+        else:
+            prev_results = valid_results
+    return valid_results[:10]
 
 
 @app.post("/upload")
