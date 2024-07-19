@@ -26,8 +26,10 @@ const Dropzone = ({ onUploadSuccess }) => {
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   return (
-    <div {...getRootProps()} className="drag-drop-box">
-      <img src={OriginalImage} alt="Original Photo" className="original-photo-image" />
+    <div className="drag-drop">
+      <img src={OriginalImage} 
+               {...getRootProps()}
+               alt="Original Photo" className="original-photo-image" />
       <input {...getInputProps()} />
     </div>
   );
