@@ -101,7 +101,7 @@ def pinecone_query(embedding, index):
     return query_results
 
 
-def get_results(query_results):
+def validate_results(query_results):
     validation_start_time = time.time()
     query_results = thread_validation(query_results)
     validation_time = calculate_duration(validation_start_time)
@@ -170,7 +170,7 @@ async def image_similarity_search():
     while dead_links:
         image_embedding = get_image_embedding()
         query_results = pinecone_query(image_embedding, index)
-        valid_results, invalid_results = get_results(query_results)
+        valid_results, invalid_results = validate_results(query_results)
         update_dead_links(index, [id["id"] for id in invalid_results])
 
         # Some queries will not return 10 images, this check prevents endless loop
