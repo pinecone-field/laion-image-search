@@ -73,7 +73,7 @@ def get_image_embedding():
     CACHED_EMBEDDING = image_embeddings.cpu().numpy().tolist()
 
     end_time = time.time()
-    print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
+    print(f"Get image embedding execution time: {calculate_duration(end_time)} ms")
     return CACHED_EMBEDDING
 
 
@@ -85,8 +85,7 @@ def pinecone_query(embedding, index):
     result = index.query(
         vector=embedding, top_k=top_k, include_metadata=True, filter=metadata_filter
     )
-    query_response_time = calculate_duration(query_start_time)
-    print(f"Pinecone query execution time: {query_response_time} ms")
+    print(f"Pinecone query execution time: {calculate_duration(query_start_time)} ms")
 
     query_results = []
     for m in result.matches:
@@ -105,8 +104,7 @@ def pinecone_query(embedding, index):
 def validate_results(query_results):
     validation_start_time = time.time()
     query_results = thread_validation(query_results)
-    validation_time = calculate_duration(validation_start_time)
-    print(f"Url validation time:\t{validation_time}ms")
+    print(f"Url validation time: {calculate_duration(validation_start_time)}ms")
 
     valid_results = [image for image in query_results if not image["dead-link"]]
     invalid_results = [image for image in query_results if image["dead-link"]]
