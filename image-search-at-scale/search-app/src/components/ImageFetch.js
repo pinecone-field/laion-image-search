@@ -2,13 +2,13 @@ import React, { useState, useEffect, useContext } from 'react';
 import { ImageContext } from './ImageContext';
 import configData from './config.json'
 
-const ImageFetch = () => {
+const ImageFetch = ({ uploadedImages }) => {
   const { setImages } = useContext(ImageContext);
   const [error, setError] = useState(null);
   const [fetching, setFetching] = useState(false);
   const SERVER_URL = configData.SERVER_URL
 
-  const fetchImages = () => {
+  const fetchImages = async () => {
     setFetching(true);
     fetch(SERVER_URL)
       .then(response => {
@@ -31,12 +31,17 @@ const ImageFetch = () => {
 
   useEffect(() => {
     fetchImages();
-  }, []);
+  }, [uploadedImages]);
+
+  useEffect(() => {
+    if (uploadedImages.length > 0) {
+      fetchImages();
+    }
+  }, [uploadedImages]);
 
   if (error) {
     return <div>Error: {error.message}</div>;
   }
-
 };
 
 export default ImageFetch;

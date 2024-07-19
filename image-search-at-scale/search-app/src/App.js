@@ -7,12 +7,17 @@ import configData from './config.json'
 import Search from './components/Search';
 import ImageDisplay from './components/ImageDisplay';
 import { ImageProvider } from './components/ImageContext';
+import Dropzone from './components/Dropzone';
 
 function App() {
   const [files, setFiles] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const SERVER_URL = configData.SERVER_URL
+  const [uploadedImages, setUploadedImages] = useState([]);
+
+  const handleUploadSuccess = (images) => {
+    setUploadedImages(images);
+  };
 
   useEffect(() => {
     return () => {
@@ -36,12 +41,9 @@ function App() {
             <div className="search-bar">
             {/*Text search to be added here */} 
             </div>
-          <div className="original-photo">
-            <h2 className="original-photo-title">Original Photo</h2>
-            <img src={OriginalImage} alt="Original Photo" className="original-photo-image" />
-          </div>
         </div>
-      <ImageFetch/>
+      <Dropzone onUploadSuccess={handleUploadSuccess} />
+      <ImageFetch uploadedImages={uploadedImages}/>
       <ImageDisplay/>
     </div>
     </ImageProvider>
