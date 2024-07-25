@@ -6,7 +6,7 @@ const ImageFetch = ({ uploadedImages }) => {
   const { setImages } = useContext(ImageContext);
   const [error, setError] = useState(null);
   const [fetching, setFetching] = useState(false);
-  const SERVER_URL = configData.SERVER_URL
+  const SERVER_URL = configData.SERVER_URL+"/image-search"
 
   const fetchImages = async () => {
     setFetching(true);

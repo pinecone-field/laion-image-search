@@ -64,12 +64,8 @@ def get_image_embedding():
     global CACHED_IMAGE_HASH
     global CACHED_EMBEDDING
     img_embeddeing_start_time = time.time()
-
-    # Get the hash of the new image
     new_image_hash = get_image_hash(IMAGE_PATH)
 
-    # If the hash of the new image is the same as the hash of the cached image,
-    # the image has not changed
     if new_image_hash == CACHED_IMAGE_HASH:
         print("Image has not changed. Using cached image embedding.")
         return CACHED_EMBEDDING
@@ -77,14 +73,11 @@ def get_image_embedding():
     CACHED_IMAGE_HASH = new_image_hash
     print("Computing the image embedding")
     image = Image.open(IMAGE_PATH)
-
-    # Preprocess the image and return PyTorch tensor
     inputs = PROCESSOR(images=image, return_tensors="pt")
-    # Generate the image embedding
+
     with torch.no_grad():
         image_embeddings = MODEL.get_image_features(**inputs)
 
-    # Convert the image embedding from a numpy array to a list
     CACHED_EMBEDDING = image_embeddings.cpu().numpy().tolist()
     print(
         f"Get image embedding execution time: {calculate_duration(img_embeddeing_start_time)} ms"
@@ -216,7 +209,7 @@ def similarity_search(embedding):
     return valid_results[:10]
 
 
-@app.get("/images")
+@app.get("/image-search")
 async def image_similarity_search():
     image_embedding = get_image_embedding()
     return similarity_search(image_embedding)
@@ -232,7 +225,7 @@ async def upload_file(file: UploadFile = File(...)):
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
-@app.post("/images")
+@app.post("/text-search")
 async def text_similarity_search(search_text: SearchText):
     text_embedding = get_text_embedding(search_text.searchText)
     return similarity_search(text_embedding)
