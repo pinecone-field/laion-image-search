@@ -9,7 +9,7 @@ export const fetchImages = async (setImages, setError, setFetching) => {
   try {
     const response = await fetch(SERVER_URL);
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      throw new Error('Network response was not ok.\n', response);
     }
     const data = await response.json();
     console.log('Fetched data:', data);
@@ -32,12 +32,6 @@ const ImageFetch = ({ uploadedImages }) => {
 
   useEffect(() => {
     fetchImages(setImages, setError, setFetching);
-  }, [uploadedImages]);
-
-  useEffect(() => {
-    if (uploadedImages.length > 0) {
-      fetchImages(setImages, setError, setFetching);
-    }
   }, [uploadedImages]);
 
   if (error) {

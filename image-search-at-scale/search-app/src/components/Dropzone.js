@@ -1,10 +1,15 @@
-import React, { useCallback } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
-import OriginalImage from '../assets/image.jpeg'
-import './Dropzone.css'
+import OriginalImage from '../assets/image.jpeg';
+import { ImageContext } from './ImageContext';
+import { fetchImages } from './ImageFetch';
+import './Dropzone.css';
 
-const Dropzone = ({ onUploadSuccess }) => {
+const Dropzone = () => {
+  const { setImages } = useContext(ImageContext);
+  const [fetching, setFetching] = useState();
+  const [error, setError] = useState();
   const onDrop = useCallback((acceptedFiles) => {
     const formData = new FormData();
     formData.append('file', acceptedFiles[0]);
@@ -16,12 +21,12 @@ const Dropzone = ({ onUploadSuccess }) => {
     })
     .then((response) => {
       console.log(response.data);
-      onUploadSuccess(response.data.images);
+      fetchImages(setImages, setError, setFetching);
     })
     .catch((error) => {
       console.error('Error uploading file:', error);
     });
-  }, [onUploadSuccess]);
+  });
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
