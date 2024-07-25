@@ -47,14 +47,17 @@ def get_image_hash(image_path):
     with open(image_path, "rb") as f:
         return hashlib.md5(f.read()).hexdigest()
 
+
 class SearchText(BaseModel):
     searchText: str
+
 
 class SearchResult(BaseModel):
     caption: str
     score: float
     url: str
-    
+
+
 def get_image_embedding():
     global CACHED_IMAGE_HASH
     global CACHED_EMBEDDING
@@ -74,9 +77,7 @@ def get_image_embedding():
         image_embeddings = MODEL.get_image_features(**inputs)
 
     CACHED_EMBEDDING = image_embeddings.cpu().numpy().tolist()
-
-    end_time = time.time()
-    print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
+    print(f"Get image embedding execution time: {calculate_duration(start_time)} ms")
     return CACHED_EMBEDDING
 
 
@@ -95,8 +96,7 @@ def get_text_embedding(text):
         text_embedding = MODEL.get_text_features(**inputs)
 
     CACHED_TEXT_EMBEDDING = text_embedding.cpu().numpy().tolist()
-    end_time = time.time()
-    print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
+    print(f"Get image embedding execution time: {calculate_duration(start_time)} ms")
     return CACHED_TEXT_EMBEDDING
 
 
@@ -123,6 +123,12 @@ def pinecone_query(embedding, index):
             }
         )
     return query_results
+
+
+def get_text_images(text):
+    text_embedding = get_text_embedding(text)
+    images = pinecone_query(text_embedding)
+    return list(images)
 
 
 def validate_results(query_results):
