@@ -1,4 +1,3 @@
-// src/ImageContext.js
 import React, { createContext, useState } from 'react';
 
 export const ImageContext = createContext();
