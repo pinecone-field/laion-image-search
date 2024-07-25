@@ -38,8 +38,8 @@ function App() {
       </header>
         <div className="search-container">
             <Search />
+            <Dropzone onUploadSuccess={handleUploadSuccess} />
         </div>
-      <Dropzone onUploadSuccess={handleUploadSuccess} />
       <ImageFetch uploadedImages={uploadedImages}/>
       <ImageDisplay/>
     </div>

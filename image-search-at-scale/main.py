@@ -99,7 +99,7 @@ def get_text_embedding(text):
         text_embedding = MODEL.get_text_features(**inputs)
 
     CACHED_TEXT_EMBEDDING = text_embedding.cpu().numpy().tolist()
-    print(f"Get image embedding execution time: {calculate_duration(start_time)} ms")
+    print(f"Get text embedding execution time: {calculate_duration(start_time)} ms")
     return CACHED_TEXT_EMBEDDING
 
 
@@ -196,7 +196,7 @@ def calculate_duration(start_time):
     return (time.time() - start_time) * 1000
 
 
-def validate_queries(embedding):
+def similarity_search(embedding):
     prev_results = {}
     dead_links = True
     while dead_links:
@@ -215,7 +215,7 @@ def validate_queries(embedding):
 @app.get("/image-search")
 async def image_similarity_search():
     image_embedding = get_image_embedding()
-    return validate_queries(image_embedding)
+    return similarity_search(image_embedding)
 
 
 @app.post("/upload")
@@ -231,5 +231,4 @@ async def upload_file(file: UploadFile = File(...)):
 @app.post("/text-search")
 async def text_similarity_search(search_text: SearchText):
     text_embedding = get_text_embedding(search_text.searchText)
-    return validate_queries(text_embedding)
-
+    return similarity_search(text_embedding)
