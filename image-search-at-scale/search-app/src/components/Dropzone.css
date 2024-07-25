@@ -12,3 +12,7 @@
   .drag-drop img:hover {
     cursor: pointer;
   }
+
+  .drag-drop {
+    margin-top: 80px;
+  }
