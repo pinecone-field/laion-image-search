@@ -212,7 +212,7 @@ def validate_queries(embedding):
     return valid_results[:10]
 
 
-@app.get("/images")
+@app.get("/image-search")
 async def image_similarity_search():
     image_embedding = get_image_embedding()
     return validate_queries(image_embedding)
@@ -228,8 +228,8 @@ async def upload_file(file: UploadFile = File(...)):
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
-@app.post("/images")
-async def save_search(search_text: SearchText):
+@app.post("/text-search")
+async def text_similarity_search(search_text: SearchText):
     text_embedding = get_text_embedding(search_text.searchText)
     return validate_queries(text_embedding)
 

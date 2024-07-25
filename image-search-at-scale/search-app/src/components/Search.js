@@ -1,15 +1,17 @@
 // src/components/SearchComponent.js
 import React, { useContext, useState } from 'react';
 import { ImageContext } from './ImageContext';
+import configData from './config.json'
 
 const SearchComponent = () => {
   const [searchText, setSearchText] = useState('');
   const { setImages } = useContext(ImageContext);
   const [searchResults, setSearchResults] = useState([]);
+  const SERVER_URL = configData.SERVER_URL+"/text-search"
 
   const handleSearchSubmit = async () => {
     try {
-      const response = await fetch('http://localhost:8000/images', {
+      const response = await fetch(SERVER_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
