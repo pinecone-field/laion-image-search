@@ -9,7 +9,7 @@ export const fetchImages = async (setImages, setError, setFetching) => {
   try {
     const response = await fetch(SERVER_URL);
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      throw new Error('Network response was not ok.\n', response);
     }
     const data = await response.json();
     console.log('Fetched data:', data);
