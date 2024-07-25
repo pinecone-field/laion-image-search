@@ -12,7 +12,6 @@ from PIL import Image
 from pydantic import BaseModel
 import requests
 import torch
-from typing import List
 
 from dotenv import load_dotenv
 from pinecone import Pinecone
