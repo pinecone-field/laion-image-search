@@ -1,4 +1,3 @@
-// src/components/ImageFetch.js
 import React, { useState, useEffect, useContext } from 'react';
 import { ImageContext } from './ImageContext';
 import configData from './config.json';

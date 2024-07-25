@@ -1,4 +1,3 @@
-// src/components/ImageDisplay.js
 import React, { useContext, useState } from 'react';
 import './ImageDisplay.css';
 import { ImageContext } from './ImageContext';
