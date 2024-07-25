@@ -34,12 +34,6 @@ const ImageFetch = ({ uploadedImages }) => {
     fetchImages(setImages, setError, setFetching);
   }, [uploadedImages]);
 
-  useEffect(() => {
-    if (uploadedImages.length > 0) {
-      fetchImages(setImages, setError, setFetching);
-    }
-  }, [uploadedImages]);
-
   if (error) {
     return <div>Error: {error.message}</div>;
   }
