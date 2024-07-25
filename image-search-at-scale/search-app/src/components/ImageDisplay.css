@@ -2,6 +2,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+
 }
 
 .image-grid {
@@ -9,31 +10,42 @@
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   grid-gap: 20px;
   justify-items: center;
+  align-items: center;
 }
 
 .image-item {
   position: relative;
-  text-align: center; 
+  display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box; 
+  background-color: rgb(255, 255, 255);
+  border: 10px;
+  border-radius: 5px;
+  
 }
 
 .image {
-  max-width: 100%;
-  max-height: 250px;
+  max-width: calc(100% - 20px);
+  max-height: calc(100% - 20px);
   width: auto;
   height: auto;
   display: block;
-  transition: transform 0.3s ease; 
+  transition: transform 0.3s ease;
+  border-radius: 5px;
   object-fit: cover;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  background-color: aliceblue; 
 }
 
 .similarity-score {
-  font-size: 18px; 
-  font-weight: bold; 
-  margin-bottom: 10px; 
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #000000;
 }
 
 .image-footer {
@@ -50,7 +62,8 @@
   height: 0;
   overflow: hidden;
   opacity: 0;
-  transition: opacity 0.3s ease, height 0.3s ease; 
+  transition: opacity 0.3s ease, height 0.3s ease;
+  border-radius: 5px;
 }
 
 .image-item:hover .image-footer {
@@ -64,4 +77,3 @@
   white-space: normal;
   text-align: center;
 }
-
