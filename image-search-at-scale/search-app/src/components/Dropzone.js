@@ -1,10 +1,13 @@
 import React, { useContext, useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
+import configData from './config.json'
 import OriginalImage from '../assets/image.jpeg';
 import { ImageContext } from './ImageContext';
 import { fetchImages } from './ImageFetch';
 import './Dropzone.css';
+
+const SERVER_URL = `${configData.SERVER_URL}/upload`;
 
 const Dropzone = () => {
   const { setImages } = useContext(ImageContext);
@@ -14,7 +17,7 @@ const Dropzone = () => {
     const formData = new FormData();
     formData.append('file', acceptedFiles[0]);
 
-    axios.post('http://localhost:8000/upload', formData, {
+    axios.post(SERVER_URL, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
