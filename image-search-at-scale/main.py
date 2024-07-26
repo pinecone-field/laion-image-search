@@ -129,12 +129,6 @@ def pinecone_query(embedding, index):
     return query_results
 
 
-def get_text_images(text):
-    text_embedding = get_text_embedding(text)
-    images = pinecone_query(text_embedding)
-    return list(images)
-
-
 def validate_results(query_results):
     validation_start_time = time.time()
     query_results = thread_validation(query_results)
