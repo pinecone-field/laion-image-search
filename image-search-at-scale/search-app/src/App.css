@@ -48,6 +48,17 @@ body {
   background-color: #45a049;
 }
 
+.search-bar button:not(:disabled):hover {
+  transition: background-color 0.3s, transform 0.3s;
+  background-color: #007506;
+}
+
+.search-bar button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background-color: #007506;
+}
+
 .App-header {
   margin-bottom: 20px;
 }
