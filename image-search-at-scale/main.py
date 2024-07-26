@@ -7,11 +7,13 @@ import time
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from io import BytesIO
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 from pydantic import BaseModel
 import requests
 import torch
+
 
 from dotenv import load_dotenv
 from pinecone import Pinecone
@@ -195,7 +197,7 @@ def calculate_duration(start_time):
     return (time.time() - start_time) * 1000
 
 
-def similarity_search(embedding):
+def similarity_search(embedding, image_num):
     prev_results = {}
     dead_links = True
     while dead_links:
@@ -204,17 +206,38 @@ def similarity_search(embedding):
         update_dead_links(index, invalid_results)
 
         # Some queries will not return 10 images, this check prevents endless loop
-        if len(valid_results) >= 10 or prev_results == valid_results:
+        if len(valid_results) >= image_num or prev_results == valid_results:
             dead_links = False
         else:
             prev_results = valid_results
-    return valid_results[:10]
+    return valid_results[:image_num]
+
+
+def save_image(image_url):
+    try:
+        response = requests.get(image_url, stream=True, timeout=5)
+        if response.status_code == 200 and "image" in response.headers.get(
+            "Content-Type"
+        ):
+            image = Image.open(BytesIO(response.content))
+
+            if image.mode == "P":
+                image = image.convert("RGBA")
+            if image.mode == "RGBA":
+                background = Image.new("RGB", image.size, (255, 255, 255))
+                background.paste(image, (0, 0), image)
+                image = background
+
+            image.save(IMAGE_PATH)
+            return {"success": True}
+    except Exception as e:
+        return {"success": False, "url": image_url.image_url, "error": e}
 
 
 @app.get("/image-search")
 async def image_similarity_search():
     image_embedding = get_image_embedding()
-    return similarity_search(image_embedding)
+    return similarity_search(image_embedding, 10)
 
 
 @app.post("/upload")
@@ -230,4 +253,7 @@ async def upload_file(file: UploadFile = File(...)):
 @app.post("/text-search")
 async def text_similarity_search(search_text: SearchText):
     text_embedding = get_text_embedding(search_text.searchText)
-    return similarity_search(text_embedding)
+    search_results = similarity_search(text_embedding, 11)
+    display_image = search_results[1]
+    save_image(display_image.get("url"))
+    return search_results[1:]
