@@ -10,8 +10,6 @@ import { ImageProvider } from './components/ImageContext';
 
 function App() {
   const [files, setFiles] = useState([]);
-  const [searchText, setSearchText] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
   const [uploadedImages, setUploadedImages] = useState([]);
 
   const handleUploadSuccess = (images) => {
@@ -37,11 +35,9 @@ function App() {
         </div>
       </header>
         <div className="search-container">
-            <div className="search-bar">
-            {/*Text search to be added here */} 
-            </div>
+            <Search />
+            <Dropzone onUploadSuccess={handleUploadSuccess} />
         </div>
-      <Dropzone onUploadSuccess={handleUploadSuccess} />
       <ImageFetch uploadedImages={uploadedImages}/>
       <ImageDisplay/>
     </div>
