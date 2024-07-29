@@ -4,12 +4,14 @@ import os
 import shutil
 import time
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
+from pydantic import BaseModel
 
+import base64
 import requests
 import torch
 
@@ -195,3 +197,18 @@ async def upload_file(file: UploadFile = File(...)):
         return {"message": "Upload Successful!"}
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+class SearchImage(BaseModel):
+    image_path: str
+
+
+@app.post("/encode")
+async def encode_image(image: SearchImage):
+    try:
+        with open(image.image_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+        return {"encoded_image": encoded_string}
+    except Exception as e:
+        print(f"Error encoding image to base64: {e}")
+        raise HTTPException(status_code=500, detail="Failed to encode image")

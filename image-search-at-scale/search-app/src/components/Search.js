@@ -3,7 +3,7 @@ import React, { useContext, useState } from 'react';
 import { ImageContext } from './ImageContext';
 import configData from './config.json';
 
-const SERVER_URL = `${configData.SERVER_URL}/images`;
+const SERVER_URL = `${configData.SERVER_URL}/image-search`;
 
 const SearchComponent = () => {
   const [searchText, setSearchText] = useState('');
