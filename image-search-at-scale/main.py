@@ -119,7 +119,7 @@ def pinecone_query(embedding, index):
                 "id": m["id"],
                 "url": m["metadata"]["url"],
                 "dead-link": False,
-                "score": m["score"],
+                "score": round(m["score"], 5),
                 "caption": m["metadata"]["caption"],
             }
         )

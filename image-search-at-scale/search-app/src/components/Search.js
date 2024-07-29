@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { ImageContext } from './ImageContext';
 import configData from './config.json'
+import './Search.css'
 
 const SearchComponent = () => {
   const [searchText, setSearchText] = useState('');
@@ -49,7 +50,7 @@ const SearchComponent = () => {
         onKeyPress={handleKeyPress}
       />
       <button className="search-button" onClick={handleSearchSubmit} disabled={fetching} >
-              {fetching ? 'Searching' : 'Search'}
+              {fetching ? 'Searching...' : 'Search'}
       </button>
     </div>
   );
