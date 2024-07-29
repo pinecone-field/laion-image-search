@@ -32,7 +32,7 @@ function App() {
              <img src={PineconeLogo} alt="Pinecone Logo" className="pinecone-logo" />
          </a>
           <h1 className="header-title">Image Search Demo</h1>
-          <div className="IndexSize">
+          <div className="index-size">
             <IndexSize />
             </div>
         </div>
