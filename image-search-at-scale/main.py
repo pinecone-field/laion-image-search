@@ -199,4 +199,4 @@ async def get_index_size():
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index = pc.Index(PINECONE_INDEX_NAME)
     index_info = index.describe_index_stats()
-    return index_info['total_vector_count']
+    return index_info["total_vector_count"]
