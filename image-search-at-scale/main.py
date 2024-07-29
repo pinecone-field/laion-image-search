@@ -7,6 +7,7 @@ import time
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from io import BytesIO
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 from pydantic import BaseModel
@@ -43,18 +44,14 @@ CACHED_EMBEDDING = None
 pc = Pinecone(api_key=PINECONE_API_KEY)
 index = pc.Index(PINECONE_INDEX_NAME)
 
-def get_image_hash(image_path):
-    with open(image_path, "rb") as f:
-        return hashlib.md5(f.read()).hexdigest()
 
-
-def get_image_embedding():
+def get_image_embedding(image_base64):
     global CACHED_IMAGE_HASH
     global CACHED_EMBEDDING
     start_time = time.time()
 
-    # Get the hash of the new image
-    new_image_hash = get_image_hash(IMAGE_PATH)
+    image_bytes = base64.b64decode(image_base64)
+    new_image_hash = hashlib.md5(image_bytes).hexdigest()
 
     # If the hash of the new image is the same as the hash of the cached image,
     # the image has not changed
@@ -64,8 +61,8 @@ def get_image_embedding():
 
     CACHED_IMAGE_HASH = new_image_hash
     print("Computing the image embedding")
-    image = Image.open(IMAGE_PATH)
 
+    image = Image.open(BytesIO(image_bytes))
     # Preprocess the image and return PyTorch tensor
     inputs = PROCESSOR(images=image, return_tensors="pt")
     # Generate the image embedding
@@ -183,14 +180,15 @@ def similarity_search(embedding):
     return valid_results[:10]
 
 
-@app.get("/image-search")
-async def image_similarity_search():
-    image_embedding = get_image_embedding()
-    return similarity_search(image_embedding)
-
-
 class SearchImage(BaseModel):
     image_path: str
+    image_base64: str
+
+
+@app.post("/image-search")
+async def image_similarity_search(image: SearchImage):
+    image_embedding = get_image_embedding(image.image_base64)
+    return similarity_search(image_embedding)
 
 
 @app.post("/encode")

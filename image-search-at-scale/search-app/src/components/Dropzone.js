@@ -1,13 +1,11 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import axios from 'axios';
 import configData from './config.json'
 import OriginalImage from '../assets/image.jpeg';
 import { ImageContext } from './ImageContext';
 import { fetchImages } from './ImageFetch';
 import './Dropzone.css';
 
-const SERVER_URL = `${configData.SERVER_URL}/upload`;
 const ENCODE = `${configData.SERVER_URL}/encode`;
 
 const Dropzone = () => {
@@ -21,14 +19,14 @@ const Dropzone = () => {
       let localImage = localStorage.getItem("uploaded_image");
       
       if (localImage == null) {
-        console.log("No image found in local storage.");
+        console.log("No image found in local storage (Dropzone)");
         try {
           const response = await fetch(ENCODE, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ image_path: "./search-app/src/assets/image.jpeg"}),
+            body: JSON.stringify({ image_path: "./search-app/src/assets/image.jpeg", image_base64: ""}),
           });
           if (response.ok) {
             const data = await response.json();
