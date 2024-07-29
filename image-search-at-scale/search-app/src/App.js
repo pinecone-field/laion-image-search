@@ -4,6 +4,7 @@ import ImageFetch from './components/ImageFetch';
 import PineconeLogo from './assets/pinecone-logo-black.png'
 import Dropzone from './components/Dropzone';
 import configData from './components/config.json'
+import IndexSize from './components/IndexSize';
 import Search from './components/Search';
 import ImageDisplay from './components/ImageDisplay';
 import { ImageProvider } from './components/ImageContext';
@@ -32,6 +33,9 @@ function App() {
              <img src={PineconeLogo} alt="Pinecone Logo" className="pinecone-logo" />
          </a>
           <h1 className="header-title">Image Search Demo</h1>
+          <div className="index-size">
+            <IndexSize />
+            </div>
         </div>
       </header>
         <div className="search-container">

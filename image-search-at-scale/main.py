@@ -43,6 +43,7 @@ CACHED_TEXT_EMBEDDING = None
 
 pc = Pinecone(api_key=PINECONE_API_KEY)
 index = pc.Index(PINECONE_INDEX_NAME)
+index_info = index.describe_index_stats()
 
 
 def get_image_hash(image_path):
@@ -256,3 +257,8 @@ class ImageURL(BaseModel):
 @app.post("/download-image")
 async def download_image(image_url: ImageURL):
     save_image(image_url.image_url)
+
+
+@app.get("/index-size")
+async def get_index_size():
+    return index_info["total_vector_count"]
