@@ -28,7 +28,7 @@ const ImageDisplay = () => {
         body: JSON.stringify({ 'image_url': url })
       });
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was: ", response.error);
       } else {
         console.log("Fetching...")
         fetchImages(setImages, setError, setFetching)
@@ -37,7 +37,7 @@ const ImageDisplay = () => {
       const data = await response.json();
       console.log('Response from backend:', data);
     } catch (error) {
-      console.error('There was a problem with the fetch operation')
+      console.error('There was a problem with the fetch operation: ', error)
     }
   }
 
