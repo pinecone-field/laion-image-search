@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import configData from './config.json';
 
 const IndexSize = () => {
   const [indexSize, setIndexSize] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const SERVER_URL = configData.SERVER_URL+"/index-size";
 
   useEffect(() => {
     const fetchIndexSize = async () => {
       try {
-        const response = await fetch('http://localhost:8000/index-size'); 
+        const response = await fetch(SERVER_URL); 
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was: ", response.error);
         }
         const data = await response.json();
         setIndexSize(data);
