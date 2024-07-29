@@ -73,7 +73,7 @@ const Dropzone = () => {
 
   return (
     <div className="drag-drop">
-      <img src={currentImage} 
+      <img src={"data:image/jpeg;charset=utf-8;base64, " + currentImage} 
                {...getRootProps()}
                alt="Original Photo" className="original-photo-image" />
       <input {...getInputProps()} />
