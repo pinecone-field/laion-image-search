@@ -50,10 +50,16 @@ The web-app should launch in your preferred browser.
 3. (If you did not drag and drop) Refresh http://localhost:3000/ and similarity search will re-run against the new image.
 
 
-4. Click on the ```Pinecone Logo```. It will direct link you to the index that drives this demo.
+4. You can also search for images using the text search box.
 
 
-5. Show the FastAPI Console Output. The terminal output for the FastAPI application includes the following execution times: ```Get image embedding execution time in ms``` and ```Pinecone query execution time in ms```
+5. Clicking on an image will trigger a similarity search for that image. 
+
+
+6. Click on the ```Pinecone Logo```. It will direct link you to the index that drives this demo.
+
+
+7. Show the FastAPI Console Output. The terminal output for the FastAPI application includes the following execution times: ```Get image embedding execution time in ms``` and ```Pinecone query execution time in ms```
 
 
 **IMPORTANT** - Subsequent pinecone query times should drop after the initial request.
