@@ -1,3 +1,4 @@
+from io import BytesIO
 import concurrent.futures
 import hashlib
 import os
@@ -7,17 +8,14 @@ import time
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from io import BytesIO
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 from pydantic import BaseModel
 import requests
 import torch
 
-
 from dotenv import load_dotenv
 from pinecone import Pinecone
-
 
 app = FastAPI()
 
@@ -112,8 +110,7 @@ def pinecone_query(embedding, index):
     result = index.query(
         vector=embedding, top_k=top_k, include_metadata=True, filter=metadata_filter
     )
-    query_response_time = calculate_duration(query_start_time)
-    print(f"Pinecone query execution time: {query_response_time} ms")
+    print(f"Pinecone query execution time: {calculate_duration(query_start_time)} ms")
 
     query_results = []
     for m in result.matches:
@@ -132,8 +129,7 @@ def pinecone_query(embedding, index):
 def validate_results(query_results):
     validation_start_time = time.time()
     query_results = thread_validation(query_results)
-    validation_time = calculate_duration(validation_start_time)
-    print(f"Url validation time:\t{validation_time}ms")
+    print(f"Url validation time: {calculate_duration(validation_start_time)}ms")
 
     valid_results = [image for image in query_results if not image["dead-link"]]
     invalid_results = [image for image in query_results if image["dead-link"]]
@@ -223,7 +219,7 @@ def save_image(image_url):
                 image = background
 
             image.save(IMAGE_PATH)
-            return {"success": True}
+        return {"success": True}
     except Exception as e:
         return {"success": False, "url": image_url.image_url, "error": e}
 
@@ -251,3 +247,12 @@ async def text_similarity_search(search_text: SearchText):
     display_image = search_results[0]
     save_image(display_image.get("url"))
     return search_results[1:]
+
+
+class ImageURL(BaseModel):
+    image_url: str
+
+
+@app.post("/download-image")
+async def download_image(image_url: ImageURL):
+    save_image(image_url.image_url)

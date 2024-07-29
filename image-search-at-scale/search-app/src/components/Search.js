@@ -1,4 +1,3 @@
-// src/components/SearchComponent.js
 import React, { useContext, useState } from 'react';
 import { ImageContext } from './ImageContext';
 import configData from './config.json'

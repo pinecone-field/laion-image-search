@@ -29,6 +29,10 @@
   
 }
 
+.image-item:hover {
+  cursor: pointer;
+}
+
 .image {
   max-width: calc(100% - 20px);
   max-height: calc(100% - 20px);
