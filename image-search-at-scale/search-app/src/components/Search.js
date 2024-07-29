@@ -1,14 +1,18 @@
 import React, { useContext, useState } from 'react';
 import { ImageContext } from './ImageContext';
+import configData from './config.json'
 
 const SearchComponent = () => {
   const [searchText, setSearchText] = useState('');
   const { setImages } = useContext(ImageContext);
   const [searchResults, setSearchResults] = useState([]);
+  const [fetching, setFetching] = useState(false)
+  const SERVER_URL = configData.SERVER_URL+"/text-search"
 
   const handleSearchSubmit = async () => {
+    setFetching(true)
     try {
-      const response = await fetch('http://localhost:8000/images', {
+      const response = await fetch(SERVER_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -24,6 +28,8 @@ const SearchComponent = () => {
     } catch (error) {
       console.error('Error:', error);
       alert('An error occurred.');
+    } finally {
+      (setFetching(false))
     }
   };
 
@@ -42,7 +48,9 @@ const SearchComponent = () => {
         onChange={(e) => setSearchText(e.target.value)}
         onKeyPress={handleKeyPress}
       />
-      <button className="search-button" onClick={handleSearchSubmit}>Search</button>
+      <button className="search-button" onClick={handleSearchSubmit} disabled={fetching} >
+              {fetching ? 'Searching' : 'Search'}
+      </button>
     </div>
   );
 };
