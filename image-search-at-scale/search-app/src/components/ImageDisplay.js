@@ -26,14 +26,14 @@ const ImageDisplay = () => {
             onMouseEnter={() => handleMouseEnter(index)}
             onMouseLeave={handleMouseLeave}
           >
-            <div className="similarity-score">
-              Similarity Score: {image.score}
-            </div>
             <img
               src={image.url}
               alt={`Image ${index}`}
               className="image"
             />
+            <div className="similarity-score">
+              Similarity Score: {image.score}
+            </div>
             <div className="image-footer">
               <p className="image-title" style={{ opacity: hoveredIndex === index ? 1 : 0 }}>
                 {image.caption}
