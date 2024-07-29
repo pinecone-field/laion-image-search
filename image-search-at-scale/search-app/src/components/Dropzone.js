@@ -5,16 +5,18 @@ import OriginalImage from '../assets/image.jpeg';
 import { ImageContext } from './ImageContext';
 import { fetchImages } from './ImageFetch';
 import './Dropzone.css';
+import configData from './config.json';
 
 const Dropzone = () => {
   const { setImages } = useContext(ImageContext);
   const [fetching, setFetching] = useState();
   const [error, setError] = useState();
+  const SERVER_URL = configData.SERVER_URL+"/upload";
   const onDrop = useCallback((acceptedFiles) => {
     const formData = new FormData();
     formData.append('file', acceptedFiles[0]);
 
-    axios.post('http://localhost:8000/upload', formData, {
+    axios.post(SERVER_URL, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

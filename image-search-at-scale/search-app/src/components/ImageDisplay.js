@@ -2,12 +2,15 @@ import React, { useContext, useState } from 'react';
 import './ImageDisplay.css';
 import { ImageContext } from './ImageContext';
 import { fetchImages } from './ImageFetch';
+import configData from './config.json'
+
 
 const ImageDisplay = () => {
   const { setImages } = useContext(ImageContext);
   const { images } = useContext(ImageContext);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [fetching, setFetching] = useState(false);
+  const SERVER_URL = configData.SERVER_URL+"/download-image";
   const [error, setError] = useState(null);
 
   const handleMouseEnter = (index) => {
@@ -20,7 +23,7 @@ const ImageDisplay = () => {
 
   const handleMouseClick = async (url) => {
     try {
-      const response = await fetch('http://localhost:8000/download-image', {
+      const response = await fetch(SERVER_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
