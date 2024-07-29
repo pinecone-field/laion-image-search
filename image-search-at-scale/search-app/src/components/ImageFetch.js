@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { ImageContext } from './ImageContext';
 import configData from './config.json';
 
-const SERVER_URL = `${configData.SERVER_URL}/images`;
+const SERVER_URL = `${configData.SERVER_URL}/image-search`;
 
 export const fetchImages = async (setImages, setError, setFetching) => {
   setFetching(true);

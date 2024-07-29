@@ -38,6 +38,8 @@ PROCESSOR = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 CACHED_IMAGE_HASH = None
 CACHED_EMBEDDING = None
 
+pc = Pinecone(api_key=PINECONE_API_KEY)
+index = pc.Index(PINECONE_INDEX_NAME)
 
 def get_image_hash(image_path):
     with open(image_path, "rb") as f:
@@ -163,16 +165,11 @@ def calculate_duration(start_time):
     return (time.time() - start_time) * 1000
 
 
-@app.get("/images")
-async def image_similarity_search():
-    pc = Pinecone(api_key=PINECONE_API_KEY)
-    index = pc.Index(PINECONE_INDEX_NAME)
+def similarity_search(embedding):
     prev_results = {}
-
     dead_links = True
     while dead_links:
-        image_embedding = get_image_embedding()
-        query_results = pinecone_query(image_embedding, index)
+        query_results = pinecone_query(embedding, index)
         valid_results, invalid_results = validate_results(query_results)
         update_dead_links(index, invalid_results)
 
@@ -182,6 +179,12 @@ async def image_similarity_search():
         else:
             prev_results = valid_results
     return valid_results[:10]
+
+
+@app.get("/image-search")
+async def image_similarity_search():
+    image_embedding = get_image_embedding()
+    return similarity_search(image_embedding)
 
 
 @app.post("/upload")
