@@ -34,6 +34,7 @@ PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
 IMAGE_PATH = "./search-app/src/assets/image.jpeg"
 MODEL = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 PROCESSOR = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+QUERY_TIME = 12
 
 CACHED_IMAGE_HASH = None
 CACHED_EMBEDDING = None
@@ -77,6 +78,7 @@ def get_image_embedding():
 
 
 def pinecone_query(embedding, index):
+    global QUERY_TIME
     top_k = 15
     metadata_filter = {"dead-link": {"$ne": True}}
 
@@ -84,8 +86,8 @@ def pinecone_query(embedding, index):
     result = index.query(
         vector=embedding, top_k=top_k, include_metadata=True, filter=metadata_filter
     )
-    query_response_time = calculate_duration(query_start_time)
-    print(f"Pinecone query execution time: {query_response_time} ms")
+    QUERY_TIME = calculate_duration(query_start_time)
+    print(f"Pinecone query execution time: {QUERY_TIME} ms")
 
     query_results = []
     for m in result.matches:
@@ -192,3 +194,8 @@ async def upload_file(file: UploadFile = File(...)):
         return {"message": "Upload Successful!"}
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/query-time")
+async def get_query_time():
+    return QUERY_TIME
