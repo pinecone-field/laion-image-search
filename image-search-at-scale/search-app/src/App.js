@@ -3,6 +3,7 @@ import './App.css'
 import ImageFetch from './components/ImageFetch';
 import PineconeLogo from './assets/pinecone-logo-black.png'
 import Dropzone from './components/Dropzone';
+import configData from './components/config.json'
 import IndexSize from './components/IndexSize';
 import Search from './components/Search';
 import ImageDisplay from './components/ImageDisplay';
