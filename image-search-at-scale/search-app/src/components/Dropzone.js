@@ -8,7 +8,7 @@ import './Dropzone.css';
 
 const ENCODE = `${configData.SERVER_URL}/encode`;
 
-const Dropzone = () => {
+const Dropzone = ({ onImageStored }) => {
   const { setImages } = useContext(ImageContext);
   const [fetching, setFetching] = useState();
   const [error, setError] = useState();
@@ -41,12 +41,14 @@ const Dropzone = () => {
           alert('An error occurred while trying to get local storage');
         }
       }
+      onImageStored();
       
       setCurrentImage(localImage);
     };
 
     loadImage();
-  }, []);
+
+  }, [onImageStored]);
 
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -57,6 +59,8 @@ const Dropzone = () => {
       console.log('Setting new local storage value')
       localStorage.setItem('uploaded_image', base64String);
       setCurrentImage(base64String);
+      console.log('Fetching new images now');
+      fetchImages(setImages, setError, setFetching);
     };
 
     reader.onerror = (error) => {
@@ -66,7 +70,6 @@ const Dropzone = () => {
 
     reader.readAsDataURL(file);
 
-    fetchImages(setImages, setError, setFetching);
 
   }, []);
 

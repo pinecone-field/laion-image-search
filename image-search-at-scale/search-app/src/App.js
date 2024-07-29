@@ -13,9 +13,14 @@ function App() {
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [uploadedImages, setUploadedImages] = useState([]);
+  const [imageStored, setImageStored] = useState(false);
 
   const handleUploadSuccess = (images) => {
     setUploadedImages(images);
+  };
+
+  const handleImageStored = () => {
+    setImageStored(true);
   };
 
   useEffect(() => {
@@ -23,6 +28,17 @@ function App() {
       files.forEach((file) => URL.revokeObjectURL(file.preview))
     };
   }, [files]);
+
+  useEffect(() => {
+    const checkLocalStorage = () => {
+      const localImage = localStorage.getItem("uploaded_image");
+      if (localImage) {
+        setImageStored(true);
+      }
+    };
+
+    checkLocalStorage();
+  }, []);
 
   return (
     <ImageProvider>
@@ -41,8 +57,8 @@ function App() {
             {/*Text search to be added here */} 
             </div>
         </div>
-      <Dropzone onUploadSuccess={handleUploadSuccess} />
-      <ImageFetch uploadedImages={uploadedImages}/>
+      <Dropzone onImageStored={handleImageStored} onUploadSuccess={handleUploadSuccess} />
+      {imageStored && <ImageFetch uploadedImages={uploadedImages}/>}
       <ImageDisplay/>
     </div>
     </ImageProvider>
