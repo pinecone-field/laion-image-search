@@ -248,6 +248,6 @@ async def upload_file(file: UploadFile = File(...)):
 async def text_similarity_search(search_text: SearchText):
     text_embedding = get_text_embedding(search_text.searchText)
     search_results = similarity_search(text_embedding, 11)
-    display_image = search_results[1]
+    display_image = search_results[0]
     save_image(display_image.get("url"))
     return search_results[1:]
