@@ -10,8 +10,6 @@ import { ImageProvider } from './components/ImageContext';
 
 function App() {
   const [files, setFiles] = useState([]);
-  const [searchText, setSearchText] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
   const [uploadedImages, setUploadedImages] = useState([]);
 
   const handleUploadSuccess = (images) => {
