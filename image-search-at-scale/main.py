@@ -262,4 +262,3 @@ async def download_image(image_url: ImageURL):
 @app.get("/index-size")
 async def get_index_size():
     return index_info['total_vector_count']
-
