@@ -7,14 +7,17 @@ import time
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from io import BytesIO
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
-
+from pydantic import BaseModel
 import requests
 import torch
 
+
 from dotenv import load_dotenv
 from pinecone import Pinecone
+
 
 app = FastAPI()
 
@@ -37,6 +40,11 @@ PROCESSOR = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
 CACHED_IMAGE_HASH = None
 CACHED_EMBEDDING = None
+CACHED_TEXT = None
+CACHED_TEXT_EMBEDDING = None
+
+pc = Pinecone(api_key=PINECONE_API_KEY)
+index = pc.Index(PINECONE_INDEX_NAME)
 
 
 def get_image_hash(image_path):
@@ -44,16 +52,22 @@ def get_image_hash(image_path):
         return hashlib.md5(f.read()).hexdigest()
 
 
+class SearchText(BaseModel):
+    searchText: str
+
+
+class SearchResult(BaseModel):
+    caption: str
+    score: float
+    url: str
+
+
 def get_image_embedding():
     global CACHED_IMAGE_HASH
     global CACHED_EMBEDDING
     start_time = time.time()
-
-    # Get the hash of the new image
     new_image_hash = get_image_hash(IMAGE_PATH)
 
-    # If the hash of the new image is the same as the hash of the cached image,
-    # the image has not changed
     if new_image_hash == CACHED_IMAGE_HASH:
         print("Image has not changed. Using cached image embedding.")
         return CACHED_EMBEDDING
@@ -61,19 +75,33 @@ def get_image_embedding():
     CACHED_IMAGE_HASH = new_image_hash
     print("Computing the image embedding")
     image = Image.open(IMAGE_PATH)
-
-    # Preprocess the image and return PyTorch tensor
     inputs = PROCESSOR(images=image, return_tensors="pt")
-    # Generate the image embedding
+
     with torch.no_grad():
         image_embeddings = MODEL.get_image_features(**inputs)
 
-    # Convert the image embedding from a numpy array to a list
     CACHED_EMBEDDING = image_embeddings.cpu().numpy().tolist()
-
-    end_time = time.time()
-    print(f"Get image embedding execution time: {(end_time - start_time) * 1000} ms")
+    print(f"Get image embedding execution time: {calculate_duration(start_time)} ms")
     return CACHED_EMBEDDING
+
+
+def get_text_embedding(text):
+    global CACHED_TEXT
+    global CACHED_TEXT_EMBEDDING
+    start_time = time.time()
+
+    if text == CACHED_TEXT:
+        print("Text has not changed. Using cached text embedding")
+        return CACHED_TEXT_EMBEDDING
+    CACHED_TEXT = text
+    inputs = PROCESSOR(text=text, return_tensors="pt")
+
+    with torch.no_grad():
+        text_embedding = MODEL.get_text_features(**inputs)
+
+    CACHED_TEXT_EMBEDDING = text_embedding.cpu().numpy().tolist()
+    print(f"Get text embedding execution time: {calculate_duration(start_time)} ms")
+    return CACHED_TEXT_EMBEDDING
 
 
 def pinecone_query(embedding, index):
@@ -163,25 +191,47 @@ def calculate_duration(start_time):
     return (time.time() - start_time) * 1000
 
 
-@app.get("/images")
-async def image_similarity_search():
-    pc = Pinecone(api_key=PINECONE_API_KEY)
-    index = pc.Index(PINECONE_INDEX_NAME)
+def similarity_search(embedding, image_num):
     prev_results = {}
-
     dead_links = True
     while dead_links:
-        image_embedding = get_image_embedding()
-        query_results = pinecone_query(image_embedding, index)
+        query_results = pinecone_query(embedding, index)
         valid_results, invalid_results = validate_results(query_results)
         update_dead_links(index, invalid_results)
 
         # Some queries will not return 10 images, this check prevents endless loop
-        if len(valid_results) >= 10 or prev_results == valid_results:
+        if len(valid_results) >= image_num or prev_results == valid_results:
             dead_links = False
         else:
             prev_results = valid_results
-    return valid_results[:10]
+    return valid_results[:image_num]
+
+
+def save_image(image_url):
+    try:
+        response = requests.get(image_url, stream=True, timeout=5)
+        if response.status_code == 200 and "image" in response.headers.get(
+            "Content-Type"
+        ):
+            image = Image.open(BytesIO(response.content))
+
+            if image.mode == "P":
+                image = image.convert("RGBA")
+            if image.mode == "RGBA":
+                background = Image.new("RGB", image.size, (255, 255, 255))
+                background.paste(image, (0, 0), image)
+                image = background
+
+            image.save(IMAGE_PATH)
+            return {"success": True}
+    except Exception as e:
+        return {"success": False, "url": image_url.image_url, "error": e}
+
+
+@app.get("/image-search")
+async def image_similarity_search():
+    image_embedding = get_image_embedding()
+    return similarity_search(image_embedding, 10)
 
 
 @app.post("/upload")
@@ -192,3 +242,12 @@ async def upload_file(file: UploadFile = File(...)):
         return {"message": "Upload Successful!"}
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.post("/text-search")
+async def text_similarity_search(search_text: SearchText):
+    text_embedding = get_text_embedding(search_text.searchText)
+    search_results = similarity_search(text_embedding, 11)
+    display_image = search_results[0]
+    save_image(display_image.get("url"))
+    return search_results[1:]
