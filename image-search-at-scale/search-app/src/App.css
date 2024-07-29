@@ -56,3 +56,9 @@ body {
   font-weight: 500;
   margin: 0;
 }
+
+.index-size {
+  position: fixed;
+  right: 10px;
+  top: 20px;
+}
