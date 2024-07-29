@@ -1,6 +1,6 @@
 // src/components/ImageDisplay.js
 import React, { useContext, useState } from 'react';
-import './ImageDisplay.css'; // Import the CSS file
+import './ImageDisplay.css';
 import { ImageContext } from './ImageContext';
 
 const ImageDisplay = () => {
