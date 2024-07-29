@@ -28,7 +28,6 @@ const Dropzone = () => {
             headers: {
               'Content-Type': 'application/json',
             },
-            //body: JSON.stringify({ image_path: OriginalImage }),
             body: JSON.stringify({ image_path: "./search-app/src/assets/image.jpeg"}),
           });
           if (response.ok) {
@@ -52,28 +51,32 @@ const Dropzone = () => {
   }, []);
 
   const onDrop = useCallback((acceptedFiles) => {
-    const formData = new FormData();
-    formData.append('file', acceptedFiles[0]);
+    const file = acceptedFiles[0];
+    const reader = new FileReader;
 
-    axios.post(SERVER_URL, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-    .then((response) => {
-      console.log(response.data);
-      fetchImages(setImages, setError, setFetching);
-    })
-    .catch((error) => {
-      console.error('Error uploading file:', error);
-    });
-  });
+    reader.onload = (event) => {
+      const base64String = event.target.result.split(',')[1];
+      console.log('Setting new local storage value')
+      localStorage.setItem('uploaded_image', base64String);
+      setCurrentImage(base64String);
+    };
+
+    reader.onerror = (error) => {
+      console.error('Error reading file:', error);
+      setError('Error reading file');
+    };
+
+    reader.readAsDataURL(file);
+
+    fetchImages(setImages, setError, setFetching);
+
+  }, []);
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   return (
     <div className="drag-drop">
-      <img src={"data:image/jpeg;charset=utf-8;base64, " + currentImage} 
+      <img src={`data:image/jpeg;charset=utf-8;base64, ${currentImage}`} 
                {...getRootProps()}
                alt="Original Photo" className="original-photo-image" />
       <input {...getInputProps()} />
