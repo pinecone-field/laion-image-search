@@ -1,11 +1,9 @@
-from io import BytesIO
 import concurrent.futures
 import hashlib
 import os
-import shutil
 import time
 
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from io import BytesIO
