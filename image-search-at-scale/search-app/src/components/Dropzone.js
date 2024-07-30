@@ -24,7 +24,7 @@ const Dropzone = ({ onImageStored }) => {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ image_path: "./search-app/src/assets/image.jpeg", image_base64: ""}),
+            body: JSON.stringify({ image_path: "./search-app/src/assets/image.jpeg", image_base64: "", image_url: "" }),
           });
           if (response.ok) {
             const data = await response.json();

@@ -1,3 +1,4 @@
+import base64
 import concurrent.futures
 import hashlib
 import os
@@ -11,7 +12,6 @@ from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 from pydantic import BaseModel
 
-import base64
 import requests
 import torch
 
@@ -54,18 +54,9 @@ class SearchText(BaseModel):
     searchText: str
 
 
-class SearchResult(BaseModel):
-    caption: str
-    score: float
-    url: str
-
-
 class SearchImage(BaseModel):
     image_path: str
     image_base64: str
-
-
-class ImageURL(BaseModel):
     image_url: str
 
 
@@ -275,7 +266,7 @@ async def text_similarity_search(search_text: SearchText):
 
 
 @app.post("/download-image")
-async def download_image(image_url: ImageURL):
+async def download_image(image_url: SearchImage):
     return get_base64_from_url(image_url.image_url)
 
 

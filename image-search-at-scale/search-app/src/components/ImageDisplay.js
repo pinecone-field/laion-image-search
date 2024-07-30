@@ -25,7 +25,7 @@ const ImageDisplay = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ 'image_url': url })
+        body: JSON.stringify({ image_path: "", image_base64: "", image_url: url })
       });
       if (!response.ok) {
         throw new Error("Network response was: ", response.error);

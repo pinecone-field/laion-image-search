@@ -17,7 +17,7 @@ export const fetchImages = async (setImages, setError, setFetching) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ image_path: "", image_base64: base64Image }),
+      body: JSON.stringify({ image_path: "", image_base64: base64Image, image_url: "" }),
     });
     if (!response.ok) {
       throw new Error('Network response was not ok.\n', response);
