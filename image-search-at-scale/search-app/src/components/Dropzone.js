@@ -1,7 +1,6 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import configData from './config.json'
-import OriginalImage from '../assets/image.jpeg';
 import { ImageContext } from './ImageContext';
 import { fetchImages } from './ImageFetch';
 import './Dropzone.css';
@@ -9,10 +8,9 @@ import './Dropzone.css';
 const ENCODE = `${configData.SERVER_URL}/encode`;
 
 const Dropzone = ({ onImageStored }) => {
-  const { setImages } = useContext(ImageContext);
+  const { setImages, currentImage, setCurrentImage } = useContext(ImageContext);
   const [fetching, setFetching] = useState();
   const [error, setError] = useState();
-  const [currentImage, setCurrentImage] = useState(OriginalImage);
 
   useEffect(() => {
     const loadImage = async () => {
@@ -48,7 +46,7 @@ const Dropzone = ({ onImageStored }) => {
 
     loadImage();
 
-  }, [onImageStored]);
+  }, [onImageStored, setCurrentImage]);
 
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -69,7 +67,6 @@ const Dropzone = ({ onImageStored }) => {
     };
 
     reader.readAsDataURL(file);
-
 
   }, []);
 

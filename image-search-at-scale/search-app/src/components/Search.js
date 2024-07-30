@@ -1,11 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { ImageContext } from './ImageContext';
-import configData from './config.json'
-import './Search.css'
+import configData from './config.json';
+import './Search.css';
 
 const SearchComponent = () => {
   const [searchText, setSearchText] = useState('');
-  const { setImages } = useContext(ImageContext);
+  const { setImages, setCurrentImage } = useContext(ImageContext);
   const [searchResults, setSearchResults] = useState([]);
   const [fetching, setFetching] = useState(false)
   const SERVER_URL = configData.SERVER_URL+"/text-search"
@@ -23,6 +23,7 @@ const SearchComponent = () => {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("uploaded_image", data.image_base64);
+        setCurrentImage(data.image_base64);
         setImages(data.search_results);
       } else {
         alert('Failed to fetch search results.');

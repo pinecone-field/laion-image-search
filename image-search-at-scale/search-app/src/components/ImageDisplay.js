@@ -4,7 +4,7 @@ import { ImageContext } from './ImageContext';
 import { fetchImages } from './ImageFetch';
 
 const ImageDisplay = () => {
-  const { setImages } = useContext(ImageContext);
+  const { setImages, setCurrentImage } = useContext(ImageContext);
   const { images } = useContext(ImageContext);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [fetching, setFetching] = useState(false);
@@ -32,6 +32,7 @@ const ImageDisplay = () => {
       } else {
         const data = await response.json();
         localStorage.setItem("uploaded_image", data);
+        setCurrentImage(data);
         console.log("Fetching...");
         fetchImages(setImages, setError, setFetching);
       }

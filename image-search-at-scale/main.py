@@ -273,7 +273,7 @@ async def text_similarity_search(search_text: SearchText):
     search_results = similarity_search(text_embedding, 11)
     display_image = search_results[0]
     image_base64 = get_base64_from_url(display_image.get("url"))
-    return {"image_base64": image_base64, "search_results": search_results}
+    return {"image_base64": image_base64, "search_results": search_results[1:]}
 
 
 @app.post("/download-image")
