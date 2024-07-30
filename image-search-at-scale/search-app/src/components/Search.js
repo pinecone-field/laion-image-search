@@ -1,16 +1,17 @@
-// src/components/SearchComponent.js
 import React, { useContext, useState } from 'react';
 import { ImageContext } from './ImageContext';
-import configData from './config.json';
-
-const SERVER_URL = `${configData.SERVER_URL}/image-search`;
+import configData from './config.json'
+import './Search.css'
 
 const SearchComponent = () => {
   const [searchText, setSearchText] = useState('');
   const { setImages } = useContext(ImageContext);
   const [searchResults, setSearchResults] = useState([]);
+  const [fetching, setFetching] = useState(false)
+  const SERVER_URL = configData.SERVER_URL+"/text-search"
 
   const handleSearchSubmit = async () => {
+    setFetching(true)
     try {
       const response = await fetch(SERVER_URL, {
         method: 'POST',
@@ -20,14 +21,17 @@ const SearchComponent = () => {
         body: JSON.stringify({ searchText }),
       });
       if (response.ok) {
-        const results = await response.json();
-        setImages(results);
+        const data = await response.json();
+        localStorage.setItem("uploaded_image", data.image_base64);
+        setImages(data.search_results);
       } else {
         alert('Failed to fetch search results.');
       }
     } catch (error) {
       console.error('Error:', error);
       alert('An error occurred.');
+    } finally {
+      (setFetching(false))
     }
   };
 
@@ -46,7 +50,9 @@ const SearchComponent = () => {
         onChange={(e) => setSearchText(e.target.value)}
         onKeyPress={handleKeyPress}
       />
-      <button className="search-button" onClick={handleSearchSubmit}>Search</button>
+      <button className="search-button" onClick={handleSearchSubmit} disabled={fetching} >
+              {fetching ? 'Searching...' : 'Search'}
+      </button>
     </div>
   );
 };

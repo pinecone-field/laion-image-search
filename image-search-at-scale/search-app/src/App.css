@@ -1,6 +1,5 @@
 body {
   margin: 0;
-  font-family: 'Arial', sans-serif;
   background-color: #1c314f; 
   color: white;
 }
@@ -12,23 +11,54 @@ body {
   padding: 20px;
 }
 
+.search-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.text-search {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-right: 20px;
+}
+
 .App-header {
   margin-bottom: 20px;
 }
 
 .header-content {
-  display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  background-color: rgb(255, 255, 255);
+  color: black;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  padding: 10px;
 }
 
 .pinecone-logo {
-  width: 100px;
+  position: fixed;
+  right: 0px;
+  top: 0px;
+  width: 250px;
   height: auto;
+  left: 10px;
 }
 
 .header-title {
-  font-size: 24px;
-  margin-top: 10px;
+  font-size: 40px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.index-size {
+  position: fixed;
+  right: 10px;
+  top: 20px;
 }
