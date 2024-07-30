@@ -244,7 +244,7 @@ def get_base64_from_url(image_url):
         if response.status_code == 200 and "image" in response.headers.get(
             "Content-Type"
         ):
-            image_base64 = base64.b64encode(response.content).decode('utf-8')
+            image_base64 = base64.b64encode(response.content).decode("utf-8")
         return image_base64
     except requests.exceptions.RequestException as e:
         print(f"Error fetching image from URL: {e}")
@@ -255,7 +255,7 @@ def get_base64_from_url(image_url):
 async def encode_image(image: SearchImage):
     try:
         with open(image.image_path, "rb") as image_file:
-            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+            encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
         return {"encoded_image": encoded_string}
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
