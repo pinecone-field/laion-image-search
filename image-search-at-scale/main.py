@@ -166,20 +166,28 @@ def thread_validation(results):
     return results
 
 
-def is_dead_link(url):
+def get_url_content(image_url):
     try:
-        response = requests.get(url, stream=True, timeout=5)
+        response = requests.get(image_url, stream=True, timeout=5)
         if response.status_code == 200 and "image" in response.headers.get(
             "Content-Type"
         ):
-            return False
+            return response.content
         else:
-            return True
+            return None
     except requests.exceptions.RequestException as e:
-        print(f"Cannot Reach:\n{url}.\nError: {e}")
-        return True
+        print(f"Cannot Reach:\n{image_url}.\nError: {e}")
+        return None
     except TypeError:
         print("Image has no Content-Type header")
+        return None
+
+
+def is_dead_link(url):
+    response_content = get_url_content(url)
+    if response_content:
+        return False
+    else:
         return True
 
 
@@ -204,16 +212,9 @@ def similarity_search(embedding, image_num):
 
 
 def get_base64_from_url(image_url):
-    try:
-        response = requests.get(image_url, stream=True, timeout=5)
-        if response.status_code == 200 and "image" in response.headers.get(
-            "Content-Type"
-        ):
-            image_base64 = base64.b64encode(response.content).decode("utf-8")
-        return image_base64
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching image from URL: {e}")
-        return None
+    response_content = get_url_content(image_url)
+    image_base64 = base64.b64encode(response_content).decode("utf-8")
+    return image_base64
 
 
 @app.post("/encode")
