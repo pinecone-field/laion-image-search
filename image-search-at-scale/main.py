@@ -46,9 +46,6 @@ pc = Pinecone(api_key=PINECONE_API_KEY)
 index = pc.Index(PINECONE_INDEX_NAME)
 index_info = index.describe_index_stats()
 
-pc = Pinecone(api_key=PINECONE_API_KEY)
-index = pc.Index(PINECONE_INDEX_NAME)
-
 
 class SearchText(BaseModel):
     searchText: str
@@ -204,27 +201,6 @@ def similarity_search(embedding, image_num):
         else:
             prev_results = valid_results
     return valid_results[:image_num]
-
-
-def save_image(image_url):
-    try:
-        response = requests.get(image_url, stream=True, timeout=5)
-        if response.status_code == 200 and "image" in response.headers.get(
-            "Content-Type"
-        ):
-            image = Image.open(BytesIO(response.content))
-
-            if image.mode == "P":
-                image = image.convert("RGBA")
-            if image.mode == "RGBA":
-                background = Image.new("RGB", image.size, (255, 255, 255))
-                background.paste(image, (0, 0), image)
-                image = background
-
-            image.save(IMAGE_PATH)
-        return {"success": True}
-    except Exception as e:
-        return {"success": False, "url": image_url.image_url, "error": e}
 
 
 def get_base64_from_url(image_url):
