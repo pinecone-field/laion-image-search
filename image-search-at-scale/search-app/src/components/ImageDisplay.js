@@ -6,8 +6,7 @@ import configData from './config.json'
 
 
 const ImageDisplay = () => {
-  const { setImages } = useContext(ImageContext);
-  const { images } = useContext(ImageContext);
+  const { images, setImages, searchText, setSearchText } = useContext(ImageContext);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [fetching, setFetching] = useState(false);
   const SERVER_URL = configData.SERVER_URL+"/download-image";
@@ -35,6 +34,7 @@ const ImageDisplay = () => {
       } else {
         console.log("Fetching...")
         fetchImages(setImages, setError, setFetching)
+        setSearchText('')
       }
   
       const data = await response.json();

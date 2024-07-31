@@ -8,7 +8,7 @@ import './Dropzone.css';
 import configData from './config.json';
 
 const Dropzone = () => {
-  const { setImages } = useContext(ImageContext);
+  const { searchText, setImages, setSearchText } = useContext(ImageContext);
   const [fetching, setFetching] = useState();
   const [error, setError] = useState();
   const SERVER_URL = configData.SERVER_URL+"/upload";
@@ -24,6 +24,7 @@ const Dropzone = () => {
     .then((response) => {
       console.log(response.data);
       fetchImages(setImages, setError, setFetching);
+      setSearchText('')
     })
     .catch((error) => {
       console.error('Error uploading file:', error);

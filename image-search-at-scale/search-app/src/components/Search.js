@@ -4,8 +4,7 @@ import configData from './config.json'
 import './Search.css'
 
 const SearchComponent = () => {
-  const [searchText, setSearchText] = useState('');
-  const { setImages } = useContext(ImageContext);
+  const { searchText, setImages, setSearchText } = useContext(ImageContext);
   const [searchResults, setSearchResults] = useState([]);
   const [fetching, setFetching] = useState(false)
   const SERVER_URL = configData.SERVER_URL+"/text-search"
