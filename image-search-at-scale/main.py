@@ -174,21 +174,21 @@ def get_url_content(image_url):
         ):
             return response.content
         else:
-            return None
+            return b""
     except requests.exceptions.RequestException as e:
         print(f"Cannot Reach:\n{image_url}.\nError: {e}")
-        return None
+        return b""
     except TypeError:
         print("Image has no Content-Type header")
-        return None
+        return b""
 
 
 def is_dead_link(url):
     response_content = get_url_content(url)
-    if response_content:
-        return False
-    else:
+    if response_content == b"":
         return True
+    else:
+        return False
 
 
 def calculate_duration(start_time):
