@@ -8,7 +8,7 @@ import './Dropzone.css';
 const ENCODE = `${configData.SERVER_URL}/encode`;
 
 const Dropzone = ({ onImageStored }) => {
-  const { setImages, currentImage, setCurrentImage } = useContext(ImageContext);
+  const { searchText, setImages, currentImage, setCurrentImage, setSearchText } = useContext(ImageContext);
   const [fetching, setFetching] = useState();
   const [error, setError] = useState();
 
@@ -59,6 +59,7 @@ const Dropzone = ({ onImageStored }) => {
       setCurrentImage(base64String);
       console.log('Fetching new images now');
       fetchImages(setImages, setError, setFetching);
+      setSearchText('')
     };
 
     reader.onerror = (error) => {
