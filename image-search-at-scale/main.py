@@ -1,16 +1,17 @@
-from io import BytesIO
+import base64
 import concurrent.futures
 import hashlib
 import os
-import shutil
 import time
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from io import BytesIO
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 from pydantic import BaseModel
+
 import requests
 import torch
 
@@ -46,26 +47,23 @@ index = pc.Index(PINECONE_INDEX_NAME)
 index_info = index.describe_index_stats()
 
 
-def get_image_hash(image_path):
-    with open(image_path, "rb") as f:
-        return hashlib.md5(f.read()).hexdigest()
-
-
 class SearchText(BaseModel):
     searchText: str
 
 
-class SearchResult(BaseModel):
-    caption: str
-    score: float
-    url: str
+class SearchImage(BaseModel):
+    image_path: str
+    image_base64: str
+    image_url: str
 
 
-def get_image_embedding():
+def get_image_embedding(image_base64):
     global CACHED_IMAGE_HASH
     global CACHED_EMBEDDING
     start_time = time.time()
-    new_image_hash = get_image_hash(IMAGE_PATH)
+
+    image_bytes = base64.b64decode(image_base64)
+    new_image_hash = hashlib.md5(image_bytes).hexdigest()
 
     if new_image_hash == CACHED_IMAGE_HASH:
         print("Image has not changed. Using cached image embedding.")
@@ -73,7 +71,8 @@ def get_image_embedding():
 
     CACHED_IMAGE_HASH = new_image_hash
     print("Computing the image embedding")
-    image = Image.open(IMAGE_PATH)
+
+    image = Image.open(BytesIO(image_bytes))
     inputs = PROCESSOR(images=image, return_tensors="pt")
 
     with torch.no_grad():
@@ -167,21 +166,26 @@ def thread_validation(results):
     return results
 
 
-def is_dead_link(url):
+def get_url_content(image_url):
     try:
-        response = requests.get(url, stream=True, timeout=5)
+        response = requests.get(image_url, stream=True, timeout=5)
         if response.status_code == 200 and "image" in response.headers.get(
             "Content-Type"
         ):
-            return False
+            return False, response.content
         else:
-            return True
+            return True, b""
     except requests.exceptions.RequestException as e:
-        print(f"Cannot Reach:\n{url}.\nError: {e}")
-        return True
+        print(f"Cannot Reach:\n{image_url}.\nError: {e}")
+        return True, b""
     except TypeError:
         print("Image has no Content-Type header")
-        return True
+        return True, b""
+
+
+def is_dead_link(url):
+    dead_link, _ = get_url_content(url)
+    return dead_link
 
 
 def calculate_duration(start_time):
@@ -204,41 +208,26 @@ def similarity_search(embedding, image_num):
     return valid_results[:image_num]
 
 
-def save_image(image_url):
+def get_base64_from_url(image_url):
+    _, response_content = get_url_content(image_url)
+    image_base64 = base64.b64encode(response_content).decode("utf-8")
+    return image_base64
+
+
+@app.post("/encode")
+async def encode_image(image: SearchImage):
     try:
-        response = requests.get(image_url, stream=True, timeout=5)
-        if response.status_code == 200 and "image" in response.headers.get(
-            "Content-Type"
-        ):
-            image = Image.open(BytesIO(response.content))
-
-            if image.mode == "P":
-                image = image.convert("RGBA")
-            if image.mode == "RGBA":
-                background = Image.new("RGB", image.size, (255, 255, 255))
-                background.paste(image, (0, 0), image)
-                image = background
-
-            image.save(IMAGE_PATH)
-        return {"success": True}
-    except Exception as e:
-        return {"success": False, "url": image_url.image_url, "error": e}
-
-
-@app.get("/image-search")
-async def image_similarity_search():
-    image_embedding = get_image_embedding()
-    return similarity_search(image_embedding, 10)
-
-
-@app.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
-    try:
-        with open(IMAGE_PATH, "wb+") as file_object:
-            shutil.copyfileobj(file.file, file_object)
-        return {"message": "Upload Successful!"}
+        with open(image.image_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
+        return {"encoded_image": encoded_string}
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.post("/image-search")
+async def image_similarity_search(image: SearchImage):
+    image_embedding = get_image_embedding(image.image_base64)
+    return similarity_search(image_embedding, 10)
 
 
 @app.post("/text-search")
@@ -246,17 +235,13 @@ async def text_similarity_search(search_text: SearchText):
     text_embedding = get_text_embedding(search_text.searchText)
     search_results = similarity_search(text_embedding, 11)
     display_image = search_results[0]
-    save_image(display_image.get("url"))
-    return search_results[1:]
-
-
-class ImageURL(BaseModel):
-    image_url: str
+    image_base64 = get_base64_from_url(display_image.get("url"))
+    return {"image_base64": image_base64, "search_results": search_results[1:]}
 
 
 @app.post("/download-image")
-async def download_image(image_url: ImageURL):
-    save_image(image_url.image_url)
+async def download_image(image_url: SearchImage):
+    return get_base64_from_url(image_url.image_url)
 
 
 @app.get("/index-size")

@@ -6,7 +6,7 @@ import configData from './config.json'
 
 
 const ImageDisplay = () => {
-  const { setImages } = useContext(ImageContext);
+  const { setImages, setCurrentImage } = useContext(ImageContext);
   const { images } = useContext(ImageContext);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [fetching, setFetching] = useState(false);
@@ -28,19 +28,22 @@ const ImageDisplay = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ 'image_url': url })
+        body: JSON.stringify({ image_path: "", image_base64: "", image_url: url })
       });
       if (!response.ok) {
         throw new Error("Network response was: ", response.error);
       } else {
-        console.log("Fetching...")
-        fetchImages(setImages, setError, setFetching)
+        const data = await response.json();
+        localStorage.setItem("uploaded_image", data);
+        setCurrentImage(data);
+        console.log("Fetching...");
+        fetchImages(setImages, setError, setFetching);
       }
   
       const data = await response.json();
       console.log('Response from backend:', data);
     } catch (error) {
-      console.error('There was a problem with the fetch operation: ', error)
+      console.error('There was a problem with the fetch operation: ', error);
     }
   }
 

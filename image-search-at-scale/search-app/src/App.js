@@ -11,9 +11,14 @@ import { ImageProvider } from './components/ImageContext';
 function App() {
   const [files, setFiles] = useState([]);
   const [uploadedImages, setUploadedImages] = useState([]);
+  const [imageStored, setImageStored] = useState(false);
 
   const handleUploadSuccess = (images) => {
     setUploadedImages(images);
+  };
+
+  const handleImageStored = () => {
+    setImageStored(true);
   };
 
   useEffect(() => {
@@ -21,6 +26,17 @@ function App() {
       files.forEach((file) => URL.revokeObjectURL(file.preview))
     };
   }, [files]);
+
+  useEffect(() => {
+    const checkLocalStorage = () => {
+      const localImage = localStorage.getItem("uploaded_image");
+      if (localImage) {
+        setImageStored(true);
+      }
+    };
+
+    checkLocalStorage();
+  }, []);
 
   return (
     <ImageProvider>
@@ -39,9 +55,9 @@ function App() {
       </header>
         <div className="search-container">
             <Search />
-            <Dropzone onUploadSuccess={handleUploadSuccess} />
+            <Dropzone onImageStored={handleImageStored} onUploadSuccess={handleUploadSuccess} />
         </div>
-      <ImageFetch uploadedImages={uploadedImages}/>
+      {imageStored && <ImageFetch uploadedImages={uploadedImages}/>}
       <ImageDisplay/>
     </div>
     </ImageProvider>
