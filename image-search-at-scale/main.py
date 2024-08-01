@@ -172,23 +172,20 @@ def get_url_content(image_url):
         if response.status_code == 200 and "image" in response.headers.get(
             "Content-Type"
         ):
-            return response.content
+            return False, response.content
         else:
-            return b""
+            return True, b""
     except requests.exceptions.RequestException as e:
         print(f"Cannot Reach:\n{image_url}.\nError: {e}")
-        return b""
+        return True, b""
     except TypeError:
         print("Image has no Content-Type header")
-        return b""
+        return True, b""
 
 
 def is_dead_link(url):
-    response_content = get_url_content(url)
-    if response_content == b"":
-        return True
-    else:
-        return False
+    dead_link, _ = get_url_content(url)
+    return dead_link
 
 
 def calculate_duration(start_time):
@@ -212,7 +209,7 @@ def similarity_search(embedding, image_num):
 
 
 def get_base64_from_url(image_url):
-    response_content = get_url_content(image_url)
+    _, response_content = get_url_content(image_url)
     image_base64 = base64.b64encode(response_content).decode("utf-8")
     return image_base64
 
