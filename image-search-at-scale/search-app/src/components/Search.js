@@ -1,13 +1,22 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { ImageContext } from './ImageContext';
 import configData from './config.json';
 import './Search.css';
 
 const SearchComponent = () => {
-  const { searchText, setImages, setSearchText, setCurrentImage } = useContext(ImageContext);
-  const [fetching, setFetching] = useState(false);
+  const { searchText, setImages, setSearchText, setCurrentImage, fetching, setFetching } = useContext(ImageContext);
   const [errorMessage, setErrorMessage] = useState('');
   const SERVER_URL = configData.SERVER_URL+"/text-search"
+
+  useEffect(() => {
+    const handleImageFetchStart = () => {
+      setErrorMessage('');
+    };
+    window.addEventListener('imageFetchStarted', handleImageFetchStart);
+    return () => {
+      window.removeEventListener('imageFetchStarted', handleImageFetchStart);
+    };
+  }, []);
 
   const handleSearchSubmit = async () => {
     if (searchText.trim().length === 0) {

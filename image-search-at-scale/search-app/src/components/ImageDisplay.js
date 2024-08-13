@@ -6,7 +6,7 @@ import configData from './config.json'
 
 
 const ImageDisplay = () => {
-  const { images, setImages, searchText, setSearchText, setCurrentImage } = useContext(ImageContext);
+  const { images, setImages, setSearchText, setCurrentImage } = useContext(ImageContext);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [fetching, setFetching] = useState(false);
   const SERVER_URL = configData.SERVER_URL+"/download-image";
