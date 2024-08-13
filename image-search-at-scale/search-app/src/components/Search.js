@@ -58,9 +58,7 @@ const SearchComponent = () => {
       <button className="search-button" onClick={handleSearchSubmit} disabled={fetching}>
         {fetching ? 'Searching...' : 'Search'}
       </button>
-      <div>
-        {errorMessage && <div className="error-message">{errorMessage}</div>}
-      </div>
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
     </div>
   );
 };
