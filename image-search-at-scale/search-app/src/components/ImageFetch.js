@@ -6,6 +6,7 @@ const SERVER_URL = `${configData.SERVER_URL}/image-search`;
 
 export const fetchImages = async (setImages, setError, setFetching) => {
   setFetching(true);
+  window.dispatchEvent(new Event('imageFetchStarted'));
   try {
     const base64Image = localStorage.getItem("uploaded_image");
     if(!base64Image) {
@@ -36,14 +37,13 @@ export const fetchImages = async (setImages, setError, setFetching) => {
   }
 };
 
-const ImageFetch = ({ uploadedImages }) => {
-  const { setImages } = useContext(ImageContext);
+const ImageFetch = () => {
+  const { setImages, setFetching } = useContext(ImageContext);
   const [error, setError] = useState(null);
-  const [fetching, setFetching] = useState(false);
 
   useEffect(() => {
     fetchImages(setImages, setError, setFetching);
-  }, [uploadedImages]);
+  }, [setImages, setFetching]);
 
   if (error) {
     return <div>Error: {error.message}</div>;

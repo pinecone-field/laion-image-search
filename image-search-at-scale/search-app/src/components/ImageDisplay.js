@@ -6,11 +6,11 @@ import configData from './config.json'
 
 
 const ImageDisplay = () => {
-  const { images, setImages, searchText, setSearchText, setCurrentImage } = useContext(ImageContext);
+  const { images, setImages, setSearchText, setCurrentImage } = useContext(ImageContext);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [fetching, setFetching] = useState(false);
   const SERVER_URL = configData.SERVER_URL+"/download-image";
-  const [error, setError] = useState(null);
+  const [setError] = useState(null);
 
   const handleMouseEnter = (index) => {
     setHoveredIndex(index);
@@ -66,7 +66,7 @@ const ImageDisplay = () => {
               </div>
               <img
                 src={image.url}
-                alt={`Image ${index}`}
+                alt={{index}}
                 className="image"
                 onClick={() => handleMouseClick(image.url)}
               />
